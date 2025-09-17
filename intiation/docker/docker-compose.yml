@@ -1,0 +1,23 @@
+version: "3.9"
+services:
+  db:
+    image: ankane/pgvector:latest   # Postgres with pgvector pre-installed
+    container_name: car_insurance_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: car_insurance
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    container_name: car_insurance_adminer
+    restart: always
+    ports:
+      - "8080:8080"
+
+volumes:
+  db_data:
