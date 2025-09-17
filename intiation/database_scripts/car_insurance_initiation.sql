@@ -87,3 +87,16 @@ VALUES
 -- ==========================================
 --  Done 🚀
 -- ==========================================
+`
+-- Knowledge base table for embeddings
+CREATE TABLE knowledge_base (
+    doc_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    source_type VARCHAR(50) NOT NULL, -- faq, policy_doc, admin_note
+    text_chunk TEXT NOT NULL,
+    embedding VECTOR(1536), -- assuming OpenAI embedding size
+    metadata JSONB, -- optional, e.g. {plan: "Gold", version: "2024"}
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Index for fast similarity search
+CREATE INDEX ON knowledge_base USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100);`
