@@ -1,5 +1,5 @@
-from database import execute_query
-from file_reader import read_knowledge_base_md
+from src.database.connection import execute_query
+from src.data_processing.file_readers import read_knowledge_base_md
 
 def insert_knowledge_base(file_path):
     """Reads a markdown file and inserts its content into the knowledge_base table."""
@@ -17,6 +17,6 @@ def insert_knowledge_base(file_path):
     print(f"Successfully inserted knowledge base from {file_path}")
 
 if __name__ == "__main__":
-    # Path is relative to the project root, as run.sh executes from there.
-    knowledge_base_file = "intiation/knowledge_base_raw/knowledge_base.md"
+    # Path is relative to the project root
+    knowledge_base_file = "data/knowledge_base/faq.md"
     insert_knowledge_base(knowledge_base_file)

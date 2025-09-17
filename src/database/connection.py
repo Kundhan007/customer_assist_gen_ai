@@ -4,7 +4,7 @@ import json
 from psycopg2.extras import Json
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(dotenv_path='src/config/.env')
 
 # Register the json adapter
 psycopg2.extensions.register_adapter(dict, Json)
