@@ -2,8 +2,8 @@
 
 database readiness
 document creation - done
-inserting the documents without embeddings
-vectorization
+inserting the documents without embeddings - done
+vectorization - done
 vectors insertion into database
 
 orchestrator
