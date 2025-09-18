@@ -8,6 +8,8 @@ CREATE DATABASE car_insurance;
 
 -- Enable UUID generator extension (for user IDs)
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+-- Enable vector extension for embeddings
+CREATE EXTENSION IF NOT EXISTS "vector";
 
 -- ==========================================
 -- 2. Create Tables
