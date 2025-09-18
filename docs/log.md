@@ -4,9 +4,10 @@ database readiness
 document creation - done
 inserting the documents without embeddings - done
 vectorization - done
-vectors insertion into database
+vectors insertion into database - done
 
-orchestrator
+layer 1 completed
+
 agents creation
 api creation
 lanchain setup
