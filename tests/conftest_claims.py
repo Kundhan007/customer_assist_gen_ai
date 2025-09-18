@@ -43,23 +43,29 @@ def setup_multiple_test_claims(setup_test_policy):
     
     # Create first test claim
     os.environ["TEST_CLAIM_COUNTER"] = "1"
+    claim1 = create_claim(
+        policy_id=policy_id,
+        damage_description="First test damage",
+        vehicle="Test Vehicle 1"
+    )
+    claims.append(claim1)
     
     # Create second test claim with different status
     os.environ["TEST_CLAIM_COUNTER"] = "2"
     claim2 = create_claim(
-        policy_id=TEST_POLICY_ID,
+        policy_id=policy_id,
         damage_description="Second test damage",
         vehicle="Test Vehicle 2"
     )
     # Update second claim status
-    update_claim_status(TEST_CLAIM_ID_2, "In Review")
+    update_claim_status(claim2['claim_id'], "In Review")
     claims.append(claim2)
     
     yield claims
     
     # Clean up all test claims
-    for claim_id in [TEST_CLAIM_ID, TEST_CLAIM_ID_2]:
+    for claim in claims:
         try:
-            delete_claim(claim_id)
+            delete_claim(claim['claim_id'])
         except:
             pass
