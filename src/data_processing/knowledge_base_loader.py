@@ -1,4 +1,4 @@
-from src.database.connection import execute_query
+from src.database.database_manager import db_manager
 from src.data_processing.file_readers import read_knowledge_base_md
 from src.data_processing.text_vectorizer import TextVectorizer
 import numpy as np
@@ -14,7 +14,7 @@ def insert_knowledge_base(file_path):
         full_text = f"{question_text} {answer_text}"
         
         sql = "INSERT INTO knowledge_base (source_type, text_chunk, embedding, metadata) VALUES (%s, %s, NULL, %s);"
-        execute_query(sql, ('faq', full_text, {"question": question_text}))
+        db_manager.execute_query(sql, ('faq', full_text, {"question": question_text}))
     
     print(f"Successfully inserted knowledge base from {file_path}")
 
@@ -30,7 +30,6 @@ def generate_vectors_kb_optimized(model_name: str = 'all-MiniLM-L6-v2', batch_si
     Returns:
         int: Number of records updated.
     """
-    from src.database.connection import get_db_connection
     import psycopg2.extras
     
     # Initialize the text vectorizer
@@ -40,8 +39,8 @@ def generate_vectors_kb_optimized(model_name: str = 'all-MiniLM-L6-v2', batch_si
     updated_count = 0
     
     try:
-        # Get a single connection for the entire operation
-        conn = get_db_connection()
+        # Get a single connection for the entire operation from the pool
+        conn = db_manager.get_connection()
         cur = conn.cursor()
         
         # Get records based on update_existing flag
@@ -108,4 +107,4 @@ def generate_vectors_kb_optimized(model_name: str = 'all-MiniLM-L6-v2', batch_si
         
     finally:
         if conn:
-            conn.close()
+            db_manager.release_connection(conn)
