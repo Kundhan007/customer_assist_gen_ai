@@ -11,12 +11,7 @@ def insert_knowledge_base(file_path):
         answer_text = answer.strip()
         full_text = f"{question_text} {answer_text}"
         
-        sql = "INSERT INTO knowledge_base (source_type, text_chunk, metadata) VALUES (%s, %s, %s);"
+        sql = "INSERT INTO knowledge_base (source_type, text_chunk, embedding, metadata) VALUES (%s, %s, NULL, %s);"
         execute_query(sql, ('faq', full_text, {"question": question_text}))
     
     print(f"Successfully inserted knowledge base from {file_path}")
-
-if __name__ == "__main__":
-    # Path is relative to the project root
-    knowledge_base_file = "data/knowledge_base/faq.md"
-    insert_knowledge_base(knowledge_base_file)
