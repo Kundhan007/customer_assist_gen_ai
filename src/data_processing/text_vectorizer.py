@@ -70,6 +70,47 @@ class TextVectorizer:
         except Exception as e:
             logger.error(f"Failed to vectorize text chunk: {str(e)}")
             raise RuntimeError(f"Vectorization failed: {str(e)}")
-
-
-
+    
+    def vectorize_chunks_batch(self, text_chunks: list) -> list:
+        """
+        Convert multiple text chunks into vector embeddings in batch.
+        
+        Args:
+            text_chunks (list): List of text chunks to vectorize.
+            
+        Returns:
+            list: List of vector embeddings as numpy arrays.
+            
+        Raises:
+            ValueError: If the input list is empty or contains invalid text chunks.
+            RuntimeError: If vectorization fails.
+        """
+        if not text_chunks:
+            raise ValueError("Text chunks list cannot be empty")
+        
+        if not isinstance(text_chunks, list):
+            raise ValueError("Input must be a list of strings")
+        
+        # Validate each text chunk
+        for i, chunk in enumerate(text_chunks):
+            if not chunk or not isinstance(chunk, str):
+                raise ValueError(f"Text chunk at index {i} must be a non-empty string")
+            if not chunk.strip():
+                raise ValueError(f"Text chunk at index {i} cannot be empty or only whitespace")
+        
+        try:
+            # Encode all text chunks at once for better performance
+            embeddings = self.model.encode(text_chunks)
+            
+            # Ensure embeddings are numpy arrays and convert to list
+            if not isinstance(embeddings, np.ndarray):
+                embeddings = np.array(embeddings)
+            
+            result = [embeddings[i] for i in range(len(text_chunks))]
+            
+            logger.debug(f"Successfully vectorized {len(text_chunks)} text chunks in batch")
+            return result
+            
+        except Exception as e:
+            logger.error(f"Failed to vectorize text chunks in batch: {str(e)}")
+            raise RuntimeError(f"Batch vectorization failed: {str(e)}")
