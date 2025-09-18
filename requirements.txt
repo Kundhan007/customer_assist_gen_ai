@@ -6,3 +6,8 @@ psycopg2-binary>=2.9.0
 # Environment variable management
 python-dotenv>=1.0.0
 
+# Sentence transformers for vectorization
+sentence-transformers>=2.2.0
+
+# PyTorch for sentence transformers backend
+torch>=1.13.0
