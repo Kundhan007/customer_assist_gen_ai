@@ -11,6 +11,13 @@ from .conftest_common import TEST_USER_ID, TEST_CLAIM_ID, TEST_CLAIM_ID_2, TEST_
 @pytest.fixture(scope="function")
 def setup_test_user():
     """Create a test user for policy testing."""
+    # Ensure a clean state by deleting the test user if it already exists
+    try:
+        db_manager.execute_query("DELETE FROM users WHERE user_id = %s", (TEST_USER_ID,))
+    except Exception:
+        # Ignore errors if the user doesn't exist or table is not yet created
+        pass
+
     # Create test user
     sql = """INSERT INTO users (user_id, email, password_hash, role) 
              VALUES (%s, 'test@example.com', 'hashed_password_123', 'user')"""
@@ -19,7 +26,11 @@ def setup_test_user():
     yield TEST_USER_ID
     
     # Clean up test user
-    db_manager.execute_query("DELETE FROM users WHERE user_id = %s", (TEST_USER_ID,))
+    try:
+        db_manager.execute_query("DELETE FROM users WHERE user_id = %s", (TEST_USER_ID,))
+    except Exception:
+        # Ignore errors during cleanup, e.g., if already deleted
+        pass
 
 @pytest.fixture(scope="function")
 def setup_test_policy(setup_test_user):
