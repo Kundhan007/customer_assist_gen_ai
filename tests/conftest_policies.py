@@ -5,7 +5,7 @@ import os
 # Add the src directory to the Python path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
-from agents.policy_agent import create_policy, cancel_policy, get_policy_by_id
+from src.agents.policy_agent import create_policy, cancel_policy
 from .conftest_common import TEST_USER_ID, TEST_POLICY_ID_1, TEST_POLICY_ID_2
 from .conftest_database import setup_test_user
 

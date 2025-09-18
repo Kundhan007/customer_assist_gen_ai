@@ -1,7 +1,7 @@
 import os
 import pytest
 import decimal
-from agents.policy_agent import (
+from src.agents.policy_agent import (
     create_policy, get_policy_by_id, get_policies_by_user, get_policies_by_status,
     update_policy_status, update_policy_details, renew_policy, cancel_policy,
     get_all_policies, get_policy_statistics
@@ -380,7 +380,7 @@ class TestPolicyAgent:
 
     def test_premium_calculation_silver(self):
         """Test premium calculation for Silver plan."""
-        from agents.policy_agent import calculate_premium
+        from src.agents.policy_agent import calculate_premium
         
         premium = calculate_premium("Silver", 200000, True, 5000)
         # Silver: 8000 * (200000/200000) - ((5000-5000)/10000) + 2000 = 8000 + 2000 = 10000
@@ -388,7 +388,7 @@ class TestPolicyAgent:
 
     def test_premium_calculation_gold(self):
         """Test premium calculation for Gold plan."""
-        from agents.policy_agent import calculate_premium
+        from src.agents.policy_agent import calculate_premium
         
         premium = calculate_premium("Gold", 200000, True, 5000)
         # Gold: 15000 * (200000/200000) - ((5000-5000)/10000) + 0 = 15000 + 0 = 15000
@@ -396,7 +396,7 @@ class TestPolicyAgent:
 
     def test_premium_calculation_high_coverage(self):
         """Test premium calculation with high coverage."""
-        from agents.policy_agent import calculate_premium
+        from src.agents.policy_agent import calculate_premium
         
         premium = calculate_premium("Gold", 400000, True, 3000)
         # Gold: 15000 * (400000/200000) - ((5000-3000)/10000) + 0 = 15000 * 2 - 0.2 = 29999.8
@@ -404,7 +404,7 @@ class TestPolicyAgent:
 
     def test_premium_calculation_no_assistance(self):
         """Test premium calculation without roadside assistance."""
-        from agents.policy_agent import calculate_premium
+        from src.agents.policy_agent import calculate_premium
         
         premium = calculate_premium("Silver", 200000, False, 5000)
         # Silver: 8000 * (200000/200000) - ((5000-5000)/10000) + 0 = 8000 + 0 = 8000

@@ -5,8 +5,7 @@ import os
 # Add the src directory to the Python path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
-from agents.claims_agent import create_claim, delete_claim, update_claim_status
-from .conftest_common import TEST_CLAIM_ID, TEST_CLAIM_ID_2, TEST_POLICY_ID
+from src.agents.claims_agent import create_claim, delete_claim, update_claim_status
 from .conftest_database import setup_test_policy
 
 @pytest.fixture(scope="function")

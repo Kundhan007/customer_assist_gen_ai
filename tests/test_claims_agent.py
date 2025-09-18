@@ -1,6 +1,6 @@
 import os
 import pytest
-from agents.claims_agent import (
+from src.agents.claims_agent import (
     create_claim, get_claim_by_id, get_claims_by_policy, get_claims_by_status,
     update_claim_status, add_photos_to_claim, update_damage_description,
     get_all_claims, get_claim_statistics, delete_claim
