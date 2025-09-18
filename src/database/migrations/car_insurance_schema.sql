@@ -93,7 +93,7 @@ CREATE TABLE knowledge_base (
     doc_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     source_type VARCHAR(50) NOT NULL, -- faq, policy_doc, admin_note
     text_chunk TEXT NOT NULL,
-    embedding VECTOR(1536), -- assuming OpenAI embedding size
+    embedding VECTOR(384), -- using 384-dimensional vectors
     metadata JSONB, -- optional, e.g. {plan: "Gold", version: "2024"}
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
