@@ -96,40 +96,52 @@ def ensure_kb_vectors():
         print("Tests relying on knowledge search may fail.")
 
 @pytest.fixture(scope="function")
-def setup_orchestrator_test_data(setup_test_policy):
+def setup_orchestrator_test_data(setup_test_policy, request):
     """
     Sets up the necessary test data for orchestrator tests.
     - setup_test_policy (from conftest_database) ensures TEST_USER_ID and TEST_POLICY_ID exist.
-    - This fixture then adds TEST_CLAIM_ID.
+    - This fixture then conditionally ensures TEST_CLAIM_ID exists based on the test being run.
     """
     # setup_test_policy fixture has already run, creating TEST_USER_ID and TEST_POLICY_ID
     
-    # Create the test claim
-    try:
-        # Ensure claim doesn't exist from a previous failed run
-        db_manager.execute_query("DELETE FROM claims WHERE claim_id = %s", (TEST_CLAIM_ID,))
-        
-        claim_sql = """INSERT INTO claims (claim_id, policy_id, status, damage_description, 
-                        vehicle) 
-                        VALUES (%s, %s, %s, %s, %s)"""
-        db_manager.execute_query(claim_sql, 
-                                (TEST_CLAIM_ID, TEST_POLICY_ID, "Submitted", 
-                                 "minor scrape on the door", "2021 Toyota Corolla"))
-        print(f"Test claim {TEST_CLAIM_ID} created for policy {TEST_POLICY_ID} and user {TEST_USER_ID}.")
-    except Exception as e:
-        print(f"Error creating test claim {TEST_CLAIM_ID}: {e}")
-        # Depending on the desired behavior, you might want to raise the error
-        # or just let the test fail naturally if data is missing.
+    # Get the tool_name from the parametrized test data
+    tool_name = request.node.callspec.params["test_data"]["tool_name"]
+
+    # Ensure the test claim exists, unless the test is for creating a claim
+    if tool_name != "create_claim_tool":
+        try:
+            # Check if claim already exists
+            check_sql = "SELECT claim_id FROM claims WHERE claim_id = %s;"
+            existing_claim = db_manager.execute_query_with_result(check_sql, (TEST_CLAIM_ID,))
+            
+            if not existing_claim:
+                # If not, create it
+                claim_sql = """INSERT INTO claims (claim_id, policy_id, status, damage_description, 
+                                vehicle) 
+                                VALUES (%s, %s, %s, %s, %s)"""
+                db_manager.execute_query(claim_sql, 
+                                        (TEST_CLAIM_ID, TEST_POLICY_ID, "Submitted", 
+                                         "minor scrape on the door", "2021 Toyota Corolla"))
+                print(f"Test claim {TEST_CLAIM_ID} created for policy {TEST_POLICY_ID} and user {TEST_USER_ID}.")
+            else:
+                print(f"Test claim {TEST_CLAIM_ID} already exists.")
+                
+        except Exception as e:
+            print(f"Error ensuring test claim {TEST_CLAIM_ID} exists: {e}")
+    else:
+        print(f"Skipping claim creation for 'create_claim_tool' test.")
+        # Ensure the claim does NOT exist for the creation test to avoid conflicts
+        try:
+            db_manager.execute_query("DELETE FROM claims WHERE claim_id = %s", (TEST_CLAIM_ID,))
+            print(f"Ensured test claim {TEST_CLAIM_ID} is deleted before 'create_claim_tool' test.")
+        except Exception as e:
+            print(f"Error deleting test claim {TEST_CLAIM_ID} before creation test: {e}")
+
     
     yield # Test runs here
 
     # Cleanup is handled by the session-scoped cleanup_test_data in conftest_database.py
-    # However, for robustness, we can try to delete the specific claim here too.
-    try:
-        db_manager.execute_query("DELETE FROM claims WHERE claim_id = %s", (TEST_CLAIM_ID,))
-        print(f"Test claim {TEST_CLAIM_ID} deleted.")
-    except Exception as e:
-        print(f"Error deleting test claim {TEST_CLAIM_ID}: {e}")
+    # No need to delete here to avoid issues with other tests that might use the same claim.
 
 @pytest.fixture(scope="function")
 def agent_instance():

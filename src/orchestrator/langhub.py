@@ -71,29 +71,3 @@ def run_agent(query: str, agent=None):
         return result.get("output", "Agent did not return an output.")
     except Exception as e:
         return f"An error occurred while running the agent: {e}"
-
-if __name__ == '__main__':
-    # Example usage:
-    # Ensure you have set your OPENAI_API_KEY in src/config/.env
-    
-    print("Initializing Orchestrator Agent...")
-    # You might need to initialize your database connection and knowledge base vectorizer
-    # before running this, if the tools depend on them.
-    # For example, by running parts of your main.py setup or ensuring
-    # the database is up and the knowledge base is populated.
-
-    # For a simple test, let's try a knowledge base query first,
-    # as it might not depend on specific DB records if the KB is pre-loaded.
-    # If your knowledge_agent requires DB connection for some reason, ensure it's active.
-    
-    agent_instance = get_orchestrator_agent()
-    # if agent_instance:
-    #     test_query = "What is the process for filing a new claim?"
-    #     print(f"Running query: '{test_query}'")
-    #     result = run_agent(test_query, agent_instance)
-    #     print("\nAgent Response:")
-    #     print(result)
-    # else:
-    #     print("Failed to initialize agent. Check API key and other configurations.")
-    print("Langhub agent module loaded. Uncomment example usage code to test.")
-    print("Note: Full testing requires database and knowledge base setup.")
