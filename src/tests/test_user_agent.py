@@ -9,14 +9,11 @@ from src.agents.user_agent import (
     delete_user,
     get_user_statistics
 )
-from tests.conftest_common import (
+from src.tests.conftest_common import (
     TEST_USER_ID,
     TEST_ADMIN_USER_ID,
-    TEST_MULTI_USER_1,
-    TEST_MULTI_USER_2,
     TEST_USER_EMAIL,
-    TEST_ADMIN_EMAIL,
-    TEST_PASSWORD_HASH
+    TEST_ADMIN_EMAIL
 )
 
 # Set test mode environment variable

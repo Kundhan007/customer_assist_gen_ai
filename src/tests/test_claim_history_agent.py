@@ -6,7 +6,7 @@ from src.agents.claim_history_agent import (
 )
 from src.agents.claims_agent import create_claim, delete_claim
 from src.agents.policy_agent import create_policy, cancel_policy
-from tests.conftest_common import TEST_USER_ID, TEST_POLICY_ID_1
+from src.tests.conftest_common import TEST_USER_ID, TEST_POLICY_ID_1
 
 # Set test mode environment variable
 os.environ["TEST_MODE"] = "true"

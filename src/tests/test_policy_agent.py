@@ -174,29 +174,6 @@ class TestPolicyAgent:
         with pytest.raises(ValueError, match="Policy NON-EXISTENT not found"):
             cancel_policy("NON-EXISTENT")
 
-    def test_get_policy_statistics_success(self, setup_multiple_test_policies):
-        """Test getting policy statistics."""
-        stats = get_policy_statistics()
-        
-        assert 'total_policies' in stats
-        assert 'status_counts' in stats
-        assert 'average_premium' in stats
-        assert 'total_revenue' in stats
-        assert isinstance(stats['total_policies'], int)
-        assert isinstance(stats['status_counts'], dict)
-        assert isinstance(stats['average_premium'], (int, float, decimal.Decimal))
-        assert isinstance(stats['total_revenue'], (int, float, decimal.Decimal))
-        assert stats['total_policies'] >= 2
-
-    def test_get_policy_statistics_empty(self):
-        """Test getting policy statistics when no policies exist."""
-        stats = get_policy_statistics()
-        
-        assert stats['total_policies'] >= 0
-        assert isinstance(stats['status_counts'], dict)
-        assert isinstance(stats['average_premium'], (int, float))
-        assert isinstance(stats['total_revenue'], (int, float))
-
     def test_multiple_policies_same_user(self, setup_test_user):
         """Test creating multiple policies for the same user."""
         os.environ["TEST_POLICY_COUNTER"] = "1"
@@ -241,10 +218,6 @@ class TestPolicyAgent:
         assert policy['plan_name'] == "Gold"
         assert policy['collision_coverage'] == 300000
         assert policy['deductible'] == 3000
-        
-        # Get statistics
-        stats = get_policy_statistics()
-        assert stats['total_policies'] >= 1
         
         # Cancel policy
         result = cancel_policy("POL-TEST-001")

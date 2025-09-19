@@ -118,7 +118,7 @@ class TestClaimsAgent:
         update_claim_status(claim_id, "Closed")
         
         # Try to update from Closed to Submitted (should fail)
-        with pytest.raises(ValueError, match="Cannot transition from Closed to Submitted"):
+        with pytest.raises(ValueError, match="Cannot update status of closed claim"):
             update_claim_status(claim_id, "Submitted")
         
         # Clean up

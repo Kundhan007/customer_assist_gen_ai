@@ -1,9 +1,43 @@
 import pytest
 import sys
 import os
+from dotenv import load_dotenv
 
 # Add the src directory to the Python path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+
+# Load environment variables from .env file
+# This ensures that DB_PASSWORD and other variables are available
+# before database_manager is imported and db_manager is instantiated.
+env_path = os.path.join(os.path.dirname(__file__), '..', 'src', 'config', '.env')
+print(f"Attempting to load .env file from: {env_path}")
+if os.path.exists(env_path):
+    print(f".env file found at: {env_path}")
+    load_dotenv(dotenv_path=env_path)
+    print("load_dotenv() called.")
+else:
+    print(f"WARNING: .env file NOT FOUND at: {env_path}. Setting environment variables manually.")
+
+# Fallback: If .env loading didn't work or file not found, set them manually.
+# This ensures tests have the necessary configuration.
+if not os.getenv("DB_PASSWORD"):
+    print("DB_PASSWORD not found in environment. Setting manually.")
+    os.environ["DB_NAME"] = "car_insurance"
+    os.environ["DB_USER"] = "postgres"
+    os.environ["DB_PASSWORD"] = "secret"
+    os.environ["DB_HOST"] = "localhost"
+    os.environ["DB_PORT"] = "5432"
+    print("Environment variables set manually.")
+else:
+    print("DB_PASSWORD found in environment (likely from .env).")
+
+# Final check to print the values that will be used
+print(f"Final Environment Variables for DB Connection:")
+print(f"DB_USER: {os.getenv('DB_USER')}")
+print(f"DB_PASSWORD: {'*' * len(os.getenv('DB_PASSWORD')) if os.getenv('DB_PASSWORD') else 'NOT SET'}")
+print(f"DB_HOST: {os.getenv('DB_HOST')}")
+print(f"DB_PORT: {os.getenv('DB_PORT')}")
+print(f"DB_NAME: {os.getenv('DB_NAME')}")
 
 from src.database.database_manager import db_manager
 from .conftest_common import (
