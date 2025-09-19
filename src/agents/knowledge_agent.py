@@ -23,7 +23,8 @@ class KnowledgeAgent:
         self, 
         query: str, 
         limit: int = 5, 
-        source_filter: Optional[str] = None
+        source_filter: Optional[str] = None,
+        similarity_threshold: float = 0.0
     ) -> List[Dict[str, Union[str, float, dict]]]:
         """
         Search the knowledge base for entries similar to the query.
@@ -33,6 +34,8 @@ class KnowledgeAgent:
             limit (int): Maximum number of results to return (default: 5).
             source_filter (Optional[str]): Filter by source_type (e.g., 'faq', 'policy_doc').
                                         If None, searches all sources.
+            similarity_threshold (float): Minimum similarity score (0-1) for a result to be returned.
+                                        Defaults to 0.0 (no threshold).
         
         Returns:
             List[Dict]: List of knowledge base entries with similarity scores.
@@ -83,16 +86,18 @@ class KnowledgeAgent:
             params = (query_vector_list, source_filter, source_filter, query_vector_list, limit)
             results = db_manager.execute_query_with_result(sql, params)
             
-            # Format results
+            # Format results and apply similarity threshold
             formatted_results = []
             for row in results:
-                formatted_results.append({
-                    'doc_id': row['doc_id'],
-                    'source_type': row['source_type'],
-                    'text_chunk': row['text_chunk'],
-                    'metadata': row['metadata'] if row['metadata'] else {},
-                    'similarity_score': float(row['similarity_score'])
-                })
+                similarity_score = float(row['similarity_score'])
+                if similarity_score >= similarity_threshold:
+                    formatted_results.append({
+                        'doc_id': row['doc_id'],
+                        'source_type': row['source_type'],
+                        'text_chunk': row['text_chunk'],
+                        'metadata': row['metadata'] if row['metadata'] else {},
+                        'similarity_score': similarity_score
+                    })
             
             return formatted_results
             
