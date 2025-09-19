@@ -22,55 +22,54 @@ TEST_CLAIM_ID = "claim-001"
 TEST_QUESTIONS = [
     {
         "tool_name": "search_knowledge_base_tool",
-        "question": "Search the knowledge base for information on 'roadside assistance coverage'.",
+        "question": "which plan provides roadside assistance",
         "expected_keywords": ["roadside assistance", "coverage"]
+    },
+    {
+        "tool_name": "get_user_by_id_tool",
+        "question": f"Fetch the details for the user with ID '{TEST_USER_ID}'.",
+        "expected_keywords": ["user id", "email", "role"]
+    },
+    {
+        "tool_name": "get_user_by_email_tool",
+        "question": f"Look up the user information for the email address '{TEST_USER_EMAIL}'.",
+        "expected_keywords": ["user id", "email", "role"]
+    },
+    {
+        "tool_name": "create_claim_tool",
+        "question": f"File a new claim for policy '{TEST_POLICY_ID}'. The damage is a 'minor scrape on the door'. The vehicle is a 2021 Toyota Corolla. Photos are not available.",
+        "expected_keywords": ["claim id", "successfully filed"]
+    },
+    {
+        "tool_name": "get_claim_by_id_tool",
+        "question": f"Show me the details for claim '{TEST_CLAIM_ID}'.",
+        "expected_keywords": ["claim id", "policy id", "status"]
+    },
+    {
+        "tool_name": "get_claims_by_policy_tool",
+        "question": f"List all the claims that have been filed under policy '{TEST_POLICY_ID}'.",
+        "expected_keywords": ["claims", "policy id"]
+    },
+    {
+        "tool_name": "get_policy_by_id_tool",
+        "question": f"Retrieve the full details of the policy with ID '{TEST_POLICY_ID}'.",
+        "expected_keywords": ["policy id", "user id", "plan name"]
+    },
+    {
+        "tool_name": "get_policies_by_user_tool",
+        "question": f"Find all the insurance policies for the user with ID '{TEST_USER_ID}'.",
+        "expected_keywords": ["policies", "user id"]
+    },
+    {
+        "tool_name": "calculate_premium_tool",
+        "question": "What would be the premium for a 'Gold' plan with 500000 in collision coverage, including roadside assistance, and a 2000 deductible?",
+        "expected_keywords": ["premium", "37,499.70"]
+    },
+    {
+        "tool_name": "get_claim_history_by_user_id_tool",
+        "question": f"Can you get the complete claim history for user '{TEST_USER_ID}', showing all their claims across all their policies?",
+        "expected_keywords": ["11111111-1111-1111-1111-111111111111", "test-001"]
     }
-    # Other questions are commented out to isolate the agent's behavior
-    # {
-    #     "tool_name": "get_user_by_id_tool",
-    #     "question": f"Fetch the details for the user with ID '{TEST_USER_ID}'.",
-    #     "expected_keywords": ["user id", "email", "role"]
-    # },
-    # {
-    #     "tool_name": "get_user_by_email_tool",
-    #     "question": f"Look up the user information for the email address '{TEST_USER_EMAIL}'.",
-    #     "expected_keywords": ["user id", "email", "role"]
-    # },
-    # {
-    #     "tool_name": "create_claim_tool",
-    #     "question": f"File a new claim for policy '{TEST_POLICY_ID}'. The damage is a 'minor scrape on the door'. The vehicle is a 2021 Toyota Corolla. Photos are not available.",
-    #     "expected_keywords": ["claim id", "successfully filed"]
-    # },
-    # {
-    #     "tool_name": "get_claim_by_id_tool",
-    #     "question": f"Show me the details for claim '{TEST_CLAIM_ID}'.",
-    #     "expected_keywords": ["claim id", "policy id", "status"]
-    # },
-    # {
-    #     "tool_name": "get_claims_by_policy_tool",
-    #     "question": f"List all the claims that have been filed under policy '{TEST_POLICY_ID}'.",
-    #     "expected_keywords": ["claims", "policy id"]
-    # },
-    # {
-    #     "tool_name": "get_policy_by_id_tool",
-    #     "question": f"Retrieve the full details of the policy with ID '{TEST_POLICY_ID}'.",
-    #     "expected_keywords": ["policy id", "user id", "plan name"]
-    # },
-    # {
-    #     "tool_name": "get_policies_by_user_tool",
-    #     "question": f"Find all the insurance policies for the user with ID '{TEST_USER_ID}'.",
-    #     "expected_keywords": ["policies", "user id"]
-    # },
-    # {
-    #     "tool_name": "calculate_premium_tool",
-    #     "question": "What would be the premium for a 'Gold' plan with 500000 in collision coverage, including roadside assistance, and a 2000 deductible?",
-    #     "expected_keywords": ["premium", "37,499.70"]
-    # },
-    # {
-    #     "tool_name": "get_claim_history_by_user_id_tool",
-    #     "question": f"Can you get the complete claim history for user '{TEST_USER_ID}', showing all their claims across all their policies?",
-    #     "expected_keywords": ["11111111-1111-1111-1111-111111111111", "test-001"]
-    # },
 ]
 
 def ensure_kb_vectors():
