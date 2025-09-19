@@ -46,10 +46,10 @@ setup_test_env() {
 
 # Function to validate test file
 validate_test_file() {
-    if [ ! -f "tests/$1" ]; then
-        echo "Error: Test file 'tests/$1' not found"
+    if [ ! -f "src/tests/$1" ]; then
+        echo "Error: Test file 'src/tests/$1' not found"
         echo "Available test files:"
-        ls -la tests/*.py 2>/dev/null | grep -v __pycache__ || echo "  No test files found"
+        ls -la src/tests/*.py 2>/dev/null | grep -v __pycache__ || echo "  No test files found"
         exit 1
     fi
     
@@ -70,7 +70,7 @@ show_help() {
     echo "  $0 test_claims_agent.py --cov # Run with coverage"
     echo ""
     echo "Available test files:"
-    ls -la tests/*.py 2>/dev/null | grep -v __pycache__ | awk '{print "  " $9}' || echo "  No test files found"
+    ls -la src/tests/*.py 2>/dev/null | grep -v __pycache__ | awk '{print "  " $9}' || echo "  No test files found"
 }
 
 # ==========================================
@@ -97,19 +97,19 @@ setup_test_env
 case $# in
     0)
         echo "Running all tests..."
-        python -m pytest tests/ -v
+        python -m pytest src/tests/ -v
         ;;
     1)
         # Validate test file first
         validate_test_file "$1"
         echo "Running tests for: $1"
-        python -m pytest tests/$1 -v
+        python -m pytest src/tests/$1 -v
         ;;
     *)
         # Validate first argument as test file
         validate_test_file "$1"
         echo "Running tests for: $1 with options: ${@:2}"
-        python -m pytest tests/$@
+        python -m pytest src/tests/$@
         ;;
 esac
 
