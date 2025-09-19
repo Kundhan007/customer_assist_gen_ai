@@ -3,30 +3,6 @@ import random
 import string
 from src.database.database_manager import db_manager
 
-def _generate_policy_id():
-    """Generate a random policy ID following existing pattern."""
-    # Check if we're in test mode and should use fixed IDs
-    if os.getenv("TEST_MODE") == "true":
-        test_counter_str = os.getenv("TEST_POLICY_COUNTER", "1")
-        try:
-            test_counter = int(test_counter_str)
-            return f"POL-TEST-{test_counter:03d}"
-        except ValueError:
-            # Fallback if TEST_POLICY_COUNTER is not an integer
-            # Ensure generated IDs are within 20 characters
-            if "USER_MULTI_POL_1" in test_counter_str:
-                return "POL-TST-MULTIUSR-01" # 20 chars
-            elif "USER_MULTI_POL_2" in test_counter_str:
-                return "POL-TST-MULTIUSR-02" # 20 chars
-            elif "NO_CLAIMS_POL" in test_counter_str: # For test_get_claim_history_by_user_id_no_claims
-                return "POL-TST-NOCLAIMS-01" # 20 chars
-            else: # Default fallback
-                return "POL-TST-DEFAULT-01" # 18 chars
-    # Generate random ID for production
-    return f"POL-{random.randint(10000, 99999)}"
-
-# Status functionality removed as it's not in the current database schema
-
 def calculate_premium(plan_name, collision_coverage, roadside_assistance, deductible):
     """Calculate premium based on policy details."""
     base_rates = {
@@ -46,7 +22,27 @@ def calculate_premium(plan_name, collision_coverage, roadside_assistance, deduct
 
 def create_policy(user_id, plan_name, collision_coverage, roadside_assistance, deductible, premium):
     """Creates a new policy with auto-generated policy_id."""
-    policy_id = _generate_policy_id()
+    # Generate policy ID (use test ID in test mode, random in production)
+    policy_id = None
+    if os.getenv("TEST_MODE") == "true":
+        test_counter_str = os.getenv("TEST_POLICY_COUNTER", "1")
+        try:
+            test_counter = int(test_counter_str)
+            policy_id = f"POL-TEST-{test_counter:03d}"
+        except ValueError:
+            # Fallback if TEST_POLICY_COUNTER is not an integer
+            # Ensure generated IDs are within 20 characters
+            if "USER_MULTI_POL_1" in test_counter_str:
+                policy_id = "POL-TST-MULTIUSR-01" # 20 chars
+            elif "USER_MULTI_POL_2" in test_counter_str:
+                policy_id = "POL-TST-MULTIUSR-02" # 20 chars
+            elif "NO_CLAIMS_POL" in test_counter_str: # For test_get_claim_history_by_user_id_no_claims
+                policy_id = "POL-TST-NOCLAIMS-01" # 20 chars
+            else: # Default fallback
+                policy_id = "POL-TST-DEFAULT-01" # 18 chars
+    else:
+        # Production mode - generate random ID
+        policy_id = f"POL-{random.randint(10000, 99999)}"
     
     # Validate user exists - handle invalid UUID gracefully
     try:
@@ -87,16 +83,6 @@ def get_policies_by_user(user_id):
         "SELECT * FROM policies WHERE user_id = %s ORDER BY created_at DESC", 
         (user_id,)
     )
-
-# Status functionality removed as it's not in the current database schema
-def get_policies_by_status(status):
-    """Gets all policies with a specific status - not implemented as status column doesn't exist."""
-    raise NotImplementedError("Status functionality is not available in the current database schema")
-
-# Status functionality removed as it's not in the current database schema
-def update_policy_status(policy_id, new_status):
-    """Updates the status of an existing policy - not implemented as status column doesn't exist."""
-    raise NotImplementedError("Status functionality is not available in the current database schema")
 
 def update_policy_details(policy_id, plan_name=None, collision_coverage=None, 
                          roadside_assistance=None, deductible=None, premium=None):
@@ -147,26 +133,6 @@ def update_policy_details(policy_id, plan_name=None, collision_coverage=None,
     db_manager.execute_query(sql, tuple(params))
     return get_policy_by_id(policy_id)
 
-def renew_policy(policy_id, new_premium=None):
-    """Renew an existing policy."""
-    policy = get_policy_by_id(policy_id)
-    if not policy:
-        raise ValueError(f"Policy {policy_id} not found")
-    
-    # Calculate new premium if not provided
-    if new_premium is None:
-        new_premium = calculate_premium(
-            policy['plan_name'],
-            policy['collision_coverage'],
-            policy['roadside_assistance'],
-            policy['deductible']
-        )
-    
-    # Update premium
-    sql = "UPDATE policies SET premium = %s WHERE policy_id = %s"
-    db_manager.execute_query(sql, (new_premium, policy_id))
-    return get_policy_by_id(policy_id)
-
 def cancel_policy(policy_id, reason="Customer request"):
     """Cancel a policy - simplified version without status."""
     policy = get_policy_by_id(policy_id)
@@ -177,29 +143,3 @@ def cancel_policy(policy_id, reason="Customer request"):
     sql = "DELETE FROM policies WHERE policy_id = %s"
     db_manager.execute_query(sql, (policy_id,))
     return {"policy_id": policy_id, "status": "deleted"}
-
-def get_all_policies():
-    """Retrieves all policies from the database."""
-    return db_manager.execute_query_with_result(
-        "SELECT * FROM policies ORDER BY created_at DESC"
-    )
-
-def get_policy_statistics():
-    """Returns basic statistics about policies."""
-    total_results = db_manager.execute_query_with_result("SELECT COUNT(*) as total FROM policies")
-    total_policies = total_results[0]['total'] if total_results else 0
-    
-    # Calculate average premium
-    premium_results = db_manager.execute_query_with_result("SELECT AVG(premium) as avg_premium FROM policies")
-    avg_premium = premium_results[0]['avg_premium'] if premium_results and premium_results[0]['avg_premium'] else 0
-    
-    # Calculate total premium revenue (all policies since no status)
-    revenue_results = db_manager.execute_query_with_result("SELECT SUM(premium) as total_revenue FROM policies")
-    total_revenue = revenue_results[0]['total_revenue'] if revenue_results and revenue_results[0]['total_revenue'] else 0
-    
-    return {
-        'total_policies': total_policies,
-        'status_counts': {},  # Empty since no status column
-        'average_premium': round(avg_premium, 2),
-        'total_revenue': round(total_revenue, 2)
-    }

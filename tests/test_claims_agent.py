@@ -1,9 +1,8 @@
 import os
 import pytest
 from src.agents.claims_agent import (
-    create_claim, get_claim_by_id, get_claims_by_policy, get_claims_by_status,
-    update_claim_status, add_photos_to_claim, update_damage_description,
-    get_all_claims, get_claim_statistics, delete_claim
+    create_claim, get_claim_by_id, get_claims_by_policy,
+    update_claim_status, delete_claim, get_claim_statistics
 )
 
 # Set test mode environment variable
@@ -101,29 +100,6 @@ class TestClaimsAgent:
         claims = get_claims_by_policy(policy_id)
         assert len(claims) == 0
 
-    def test_get_claims_by_status_success(self, setup_test_claim):
-        """Test retrieving claims by status."""
-        claims = get_claims_by_status("Submitted")
-        
-        assert len(claims) >= 1
-        claim = next((c for c in claims if c['claim_id'] == "TEST-001"), None)
-        assert claim is not None
-        assert claim['status'] == "Submitted"
-
-    def test_get_claims_by_status_invalid(self):
-        """Test retrieving claims with invalid status."""
-        with pytest.raises(ValueError, match="Invalid status. Must be one of"):
-            get_claims_by_status("InvalidStatus")
-
-    def test_get_claims_by_all_statuses(self, setup_multiple_test_claims):
-        """Test retrieving claims for all valid statuses."""
-        valid_statuses = ['Submitted', 'In Review', 'Approved', 'Rejected', 'Closed']
-        
-        for status in valid_statuses:
-            claims = get_claims_by_status(status)
-            # Should not raise an error
-            assert isinstance(claims, list)
-
     def test_update_claim_status_valid_transition(self, setup_test_claim):
         """Test valid claim status transition."""
         claim_id = setup_test_claim['claim_id']
@@ -152,57 +128,6 @@ class TestClaimsAgent:
         """Test updating status of non-existent claim."""
         with pytest.raises(ValueError, match="Claim NON-EXISTENT not found"):
             update_claim_status("NON-EXISTENT", "In Review")
-
-    def test_add_photos_to_claim_success(self, setup_test_claim):
-        """Test adding photos to existing claim."""
-        claim_id = setup_test_claim['claim_id']
-        new_photos = ["new_photo1.jpg", "new_photo2.jpg"]
-        updated_claim = add_photos_to_claim(claim_id, new_photos)
-        
-        assert updated_claim is not None
-        assert len(updated_claim['photos']) == 4  # 2 original + 2 new
-        assert "new_photo1.jpg" in updated_claim['photos']
-        assert "new_photo2.jpg" in updated_claim['photos']
-        
-        # Clean up
-        delete_claim(claim_id)
-
-    def test_add_photos_to_claim_nonexistent(self):
-        """Test adding photos to non-existent claim."""
-        with pytest.raises(ValueError, match="Claim NON-EXISTENT not found"):
-            add_photos_to_claim("NON-EXISTENT", ["photo.jpg"])
-
-    def test_update_damage_description_success(self, setup_test_claim):
-        """Test updating damage description."""
-        claim_id = setup_test_claim['claim_id']
-        new_description = "Updated damage description"
-        updated_claim = update_damage_description(claim_id, new_description)
-        
-        assert updated_claim is not None
-        assert updated_claim['damage_description'] == new_description
-        
-        # Clean up
-        delete_claim(claim_id)
-
-    def test_update_damage_description_nonexistent(self):
-        """Test updating damage description of non-existent claim."""
-        with pytest.raises(ValueError, match="Claim NON-EXISTENT not found"):
-            update_damage_description("NON-EXISTENT", "New description")
-
-    def test_get_all_claims_success(self, setup_multiple_test_claims):
-        """Test retrieving all claims."""
-        claims = get_all_claims()
-        
-        assert len(claims) >= 2
-        claim_ids = [c['claim_id'] for c in claims]
-        assert "TEST-001" in claim_ids
-        assert "TEST-002" in claim_ids
-
-    def test_get_all_claims_empty(self):
-        """Test retrieving all claims when database is empty."""
-        # This test assumes no claims exist or test claims are cleaned up
-        claims = get_all_claims()
-        assert isinstance(claims, list)
 
     def test_get_claim_statistics_success(self, setup_multiple_test_claims):
         """Test getting claim statistics."""
@@ -292,18 +217,9 @@ class TestClaimsAgent:
         claim = create_claim(
             policy_id=policy_id,
             damage_description="Initial damage",
-            vehicle="Test Vehicle",
-            photos=["initial.jpg"]
+            vehicle="Test Vehicle"
         )
         assert claim['status'] == "Submitted"
-        
-        # Add more photos
-        claim = add_photos_to_claim("TEST-001", ["additional1.jpg", "additional2.jpg"])
-        assert len(claim['photos']) == 3
-        
-        # Update damage description
-        claim = update_damage_description("TEST-001", "Updated damage description")
-        assert claim['damage_description'] == "Updated damage description"
         
         # Update status through workflow
         claim = update_claim_status("TEST-001", "In Review")

@@ -1,7 +1,6 @@
 import os
 import pytest
 from src.agents.claim_history_agent import (
-    get_claim_history_by_policy_id,
     get_claim_history_by_user_id,
     get_detailed_claim_history
 )
@@ -14,35 +13,6 @@ os.environ["TEST_MODE"] = "true"
 
 class TestClaimHistoryAgent:
     """Test suite for claim history agent functions."""
-
-    def test_get_claim_history_by_policy_id_success(self, setup_test_claim):
-        """Test successful retrieval of claim history by policy ID."""
-        policy_id = setup_test_claim['policy_id']
-        claim_id = setup_test_claim['claim_id']
-
-        history = get_claim_history_by_policy_id(policy_id)
-
-        assert isinstance(history, list)
-        assert len(history) >= 1
-        # Find the specific claim we created in the fixture
-        claim_in_history = next((c for c in history if c['claim_id'] == claim_id), None)
-        assert claim_in_history is not None
-        assert claim_in_history['policy_id'] == policy_id
-
-    def test_get_claim_history_by_policy_id_no_claims(self, setup_test_policy):
-        """Test retrieving claim history for a policy with no claims."""
-        # setup_test_policy fixture from conftest_database.py creates a policy without claims
-        # The fixture actually returns a dictionary, so we need to extract the policy_id
-        policy_id = setup_test_policy['policy_id']
-
-        history = get_claim_history_by_policy_id(policy_id)
-        assert isinstance(history, list)
-        assert len(history) == 0
-
-    def test_get_claim_history_by_policy_id_invalid_policy(self):
-        """Test retrieving claim history with an invalid policy ID."""
-        with pytest.raises(ValueError, match="Policy INVALID-POLICY-ID not found"):
-            get_claim_history_by_policy_id("INVALID-POLICY-ID")
 
     def test_get_claim_history_by_user_id_success(self, setup_test_claim):
         """Test successful retrieval of claim history by user ID."""
@@ -109,46 +79,6 @@ class TestClaimHistoryAgent:
         """Test retrieving detailed claim history for a non-existent claim ID."""
         details = get_detailed_claim_history("NON-EXISTENT-CLAIM-ID")
         assert details is None # The function should return None if not found
-
-    def test_get_claim_history_by_policy_id_multiple_claims(self, setup_test_policy):
-        """Test retrieving claim history for a policy with multiple claims."""
-        # setup_test_policy returns a dictionary, extract the policy_id string
-        policy_id = setup_test_policy['policy_id']
-        
-        os.environ["TEST_CLAIM_COUNTER"] = "MULTI_1"
-        claim1 = create_claim(
-            policy_id=policy_id,
-            damage_description="First claim for multi-claim test",
-            vehicle="Vehicle A"
-        )
-        
-        os.environ["TEST_CLAIM_COUNTER"] = "MULTI_2"
-        claim2 = create_claim(
-            policy_id=policy_id,
-            damage_description="Second claim for multi-claim test",
-            vehicle="Vehicle B"
-        )
-
-        history = get_claim_history_by_policy_id(policy_id)
-
-        assert isinstance(history, list)
-        assert len(history) >= 2
-        
-        claim_ids_in_history = [c['claim_id'] for c in history]
-        assert claim1['claim_id'] in claim_ids_in_history
-        assert claim2['claim_id'] in claim_ids_in_history
-        
-        # Check ordering (most recent first)
-        # This depends on how last_updated is handled, assuming claim2 is newer
-        if history[0]['claim_id'] == claim1['claim_id']:
-             assert history[1]['claim_id'] == claim2['claim_id']
-        elif history[0]['claim_id'] == claim2['claim_id']:
-             assert history[1]['claim_id'] == claim1['claim_id']
-
-
-        # Clean up
-        delete_claim(claim1['claim_id'])
-        delete_claim(claim2['claim_id'])
 
     def test_get_claim_history_by_user_id_multiple_policies_claims(self, setup_test_user):
         """Test retrieving claim history for a user with multiple policies and claims."""

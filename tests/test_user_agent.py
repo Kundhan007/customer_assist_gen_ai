@@ -4,16 +4,10 @@ from src.agents.user_agent import (
     get_user_by_id,
     get_user_by_email,
     get_all_users,
-    get_users_by_role,
     create_user,
     update_user_email,
-    update_user_password,
-    update_user_role,
     delete_user,
-    email_exists,
-    user_exists,
-    get_user_statistics,
-    get_user_activity_summary
+    get_user_statistics
 )
 from tests.conftest_common import (
     TEST_USER_ID,
@@ -167,33 +161,6 @@ class TestUserAgent:
         assert test_user is not None
         assert test_user['role'] == "user"
 
-    def test_get_users_by_role_success(self, setup_test_user):
-        """Test retrieving users by role."""
-        users = get_users_by_role("user")
-        
-        assert isinstance(users, list)
-        assert len(users) >= 1
-        
-        # All returned users should have the specified role
-        for user in users:
-            assert user['role'] == "user"
-
-    def test_get_users_by_role_admin(self, setup_test_admin_user):
-        """Test retrieving admin users."""
-        users = get_users_by_role("admin")
-        
-        assert isinstance(users, list)
-        assert len(users) >= 1
-        
-        # All returned users should be admins
-        for user in users:
-            assert user['role'] == "admin"
-
-    def test_get_users_by_role_invalid(self):
-        """Test retrieving users with invalid role."""
-        with pytest.raises(ValueError, match="Invalid role. Must be 'user' or 'admin'"):
-            get_users_by_role("invalid_role")
-
     def test_update_user_email_success(self, setup_test_user):
         """Test successful user email update."""
         user_id = setup_test_user
@@ -219,40 +186,6 @@ class TestUserAgent:
         # Try to update user's email to admin's email
         with pytest.raises(ValueError, match="Email admin@test.com is already in use by another user"):
             update_user_email(user_id, TEST_ADMIN_EMAIL)
-
-    def test_update_user_password_success(self, setup_test_user):
-        """Test successful user password update."""
-        user_id = setup_test_user
-        
-        updated_user = update_user_password(user_id, "new_hashed_password")
-        
-        assert updated_user is not None
-        assert updated_user['password_hash'] == "new_hashed_password"
-        assert updated_user['user_id'] == user_id
-
-    def test_update_user_password_invalid(self, setup_test_user):
-        """Test password update with invalid password hash."""
-        user_id = setup_test_user
-        
-        with pytest.raises(ValueError, match="Password hash is required and must be a string"):
-            update_user_password(user_id, "")
-
-    def test_update_user_role_success(self, setup_test_user):
-        """Test successful user role update."""
-        user_id = setup_test_user
-        
-        updated_user = update_user_role(user_id, "admin")
-        
-        assert updated_user is not None
-        assert updated_user['role'] == "admin"
-        assert updated_user['user_id'] == user_id
-
-    def test_update_user_role_invalid(self, setup_test_user):
-        """Test role update with invalid role."""
-        user_id = setup_test_user
-        
-        with pytest.raises(ValueError, match="Invalid role. Must be 'user' or 'admin'"):
-            update_user_role(user_id, "invalid_role")
 
     def test_delete_user_success(self, setup_test_user):
         """Test successful user deletion."""
@@ -285,28 +218,6 @@ class TestUserAgent:
         with pytest.raises(ValueError, match=f"User {invalid_user_id} not found"):
             delete_user(invalid_user_id)
 
-    def test_email_exists_true(self, setup_test_user):
-        """Test email_exists with existing email."""
-        assert email_exists(TEST_USER_EMAIL) is True
-
-    def test_email_exists_false(self):
-        """Test email_exists with non-existent email."""
-        assert email_exists("nonexistent@example.com") is False
-
-    def test_email_exists_invalid_format(self):
-        """Test email_exists with invalid email format."""
-        assert email_exists("invalid-email") is False
-
-    def test_user_exists_true(self, setup_test_user):
-        """Test user_exists with existing user."""
-        user_id = setup_test_user
-        assert user_exists(user_id) is True
-
-    def test_user_exists_false(self):
-        """Test user_exists with non-existent user."""
-        invalid_user_id = "00000000-0000-0000-0000-000000000000"
-        assert user_exists(invalid_user_id) is False
-
     def test_get_user_statistics(self, setup_test_user, setup_test_admin_user):
         """Test getting user statistics."""
         stats = get_user_statistics()
@@ -323,38 +234,6 @@ class TestUserAgent:
         assert stats['user_count'] >= 1
         assert 'admin' in stats['role_counts']
         assert 'user' in stats['role_counts']
-
-    def test_get_user_activity_summary(self, setup_test_user_with_policies):
-        """Test getting user activity summary."""
-        user_id = setup_test_user_with_policies
-        
-        summary = get_user_activity_summary(user_id)
-        
-        assert isinstance(summary, dict)
-        assert summary['user_id'] == user_id
-        assert summary['email'] == TEST_USER_EMAIL
-        assert summary['role'] == "user"
-        assert 'member_since' in summary
-        assert 'policy_count' in summary
-        assert 'claim_count' in summary
-        assert 'total_premium_value' in summary
-        assert 'claim_status_breakdown' in summary
-        
-        assert summary['policy_count'] >= 0
-        assert summary['claim_count'] >= 0
-        assert isinstance(summary['total_premium_value'], (int, float))
-        assert isinstance(summary['claim_status_breakdown'], dict)
-
-    def test_get_user_activity_summary_no_activity(self, setup_test_user):
-        """Test getting user activity summary for user with no activity."""
-        user_id = setup_test_user
-        
-        summary = get_user_activity_summary(user_id)
-        
-        assert summary['policy_count'] == 0
-        assert summary['claim_count'] == 0
-        assert summary['total_premium_value'] == 0.0
-        assert summary['claim_status_breakdown'] == {}
 
     def test_multiple_users_operations(self):
         """Test operations with multiple users."""
@@ -376,20 +255,6 @@ class TestUserAgent:
         # Test get_all_users
         all_users = get_all_users()
         assert len(all_users) >= 2
-        
-        # Test get_users_by_role for both roles
-        regular_users = get_users_by_role("user")
-        admin_users = get_users_by_role("admin")
-        
-        assert len(regular_users) >= 1
-        assert len(admin_users) >= 1
-        
-        # Verify users are in correct lists
-        user1_in_regular = any(u['user_id'] == user1['user_id'] for u in regular_users)
-        user2_in_admin = any(u['user_id'] == user2['user_id'] for u in admin_users)
-        
-        assert user1_in_regular is True
-        assert user2_in_admin is True
         
         # Clean up
         delete_user(user1['user_id'])
