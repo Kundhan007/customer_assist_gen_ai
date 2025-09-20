@@ -68,41 +68,6 @@ export class ChatController {
     return this.chatService.getOrchestratorStatus();
   }
 
-  @Post('orchestrator/start')
-  @UseGuards(JwtAuthGuard)
-  @Roles('admin')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Start orchestrator (admin only)' })
-  @ApiResponse({ status: 200, description: 'Orchestrator started successfully' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - admin access required' })
-  async startOrchestrator() {
-    return this.chatService.startOrchestrator();
-  }
-
-  @Post('orchestrator/stop')
-  @UseGuards(JwtAuthGuard)
-  @Roles('admin')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Stop orchestrator (admin only)' })
-  @ApiResponse({ status: 200, description: 'Orchestrator stopped successfully' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - admin access required' })
-  async stopOrchestrator() {
-    return this.chatService.stopOrchestrator();
-  }
-
-  @Post('orchestrator/restart')
-  @UseGuards(JwtAuthGuard)
-  @Roles('admin')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Restart orchestrator (admin only)' })
-  @ApiResponse({ status: 200, description: 'Orchestrator restarted successfully' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - admin access required' })
-  async restartOrchestrator() {
-    return this.chatService.restartOrchestrator();
-  }
 
   @Get('statistics')
   @UseGuards(JwtAuthGuard)

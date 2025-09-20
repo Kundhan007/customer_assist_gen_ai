@@ -34,16 +34,4 @@ export class ChatService {
   async getOrchestratorStatus() {
     return this.orchestratorService.getOrchestratorStatus();
   }
-
-  async startOrchestrator() {
-    return this.orchestratorService.startOrchestrator();
-  }
-
-  async stopOrchestrator() {
-    return this.orchestratorService.stopOrchestrator();
-  }
-
-  async restartOrchestrator() {
-    return this.orchestratorService.restartOrchestrator();
-  }
 }
