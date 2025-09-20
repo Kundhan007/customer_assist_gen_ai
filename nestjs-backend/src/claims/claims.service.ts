@@ -40,6 +40,16 @@ export class ClaimsService {
     return await this.claimRepository.find({ where: { policy_id: policyId } });
   }
 
+  async getClaimsByUserId(userId: string) {
+    // Get claims by user ID through the policy relationship
+    // This requires joining with the policies table
+    return await this.claimRepository
+      .createQueryBuilder('claim')
+      .innerJoin('claim.policy', 'policy')
+      .where('policy.user_id = :userId', { userId })
+      .getMany();
+  }
+
   async getClaimsByStatus(status: ClaimStatus) {
     return await this.claimRepository.find({ where: { status } });
   }
