@@ -1,34 +1,53 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
+import { Entity, PrimaryColumn, Column, ManyToOne, OneToMany, JoinColumn, CreateDateColumn, UpdateDateColumn, Index } from 'typeorm';
 import { User } from './user.entity';
 import { Claim } from './claim.entity';
 import { Premium } from './premium.entity';
 
-@Entity()
+@Entity('policies')
+@Index(['policy_id'], { unique: true })
+@Index(['user_id'])
 export class Policy {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryColumn()
+  policy_id!: string;
 
-  @Column()
-  type: string;
+  @Column({
+    type: 'enum',
+    enum: ['Silver', 'Gold']
+  })
+  plan_name!: string;
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })
-  coverageAmount: number;
+  collision_coverage!: number;
+
+  @Column({ default: false })
+  roadside_assistance!: boolean;
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })
-  premium: number;
+  deductible!: number;
 
-  @Column()
-  startDate: string;
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  premium!: number;
 
-  @Column()
-  endDate: string;
+  @Column({ type: 'date' })
+  start_date!: Date;
 
-  @ManyToOne(() => User, user => user.policies)
-  user: User;
+  @Column({ type: 'date' })
+  end_date!: Date;
 
-  @OneToMany(() => Claim, claim => claim.policy)
-  claims: Claim[];
+  @Column({ name: 'user_id' })
+  user_id!: string;
 
-  @OneToMany(() => Premium, premium => premium.policy)
-  premiums: Premium[];
+  @ManyToOne(() => User, user => user.policies, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'user_id' })
+  user!: User;
+
+  @OneToMany(() => Claim, claim => claim.policy, { cascade: true })
+  claims!: Claim[];
+
+  @OneToMany(() => Premium, premium => premium.policy, { cascade: true })
+  premiums!: Premium[];
+
+  @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  created_at!: Date;
+
 }

@@ -1,27 +1,35 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { User } from './user.entity';
+import { Entity, PrimaryColumn, Column, ManyToOne, JoinColumn, UpdateDateColumn, Index } from 'typeorm';
 import { Policy } from './policy.entity';
 
-@Entity()
+@Entity('claims')
+@Index(['claim_id'], { unique: true })
+@Index(['policy_id'])
 export class Claim {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryColumn()
+  claim_id!: string;
+
+  @Column({
+    type: 'varchar',
+    default: 'Submitted'
+  })
+  status!: string;
+
+  @Column({ type: 'text' })
+  damage_description!: string;
 
   @Column()
-  description: string;
+  vehicle!: string;
 
-  @Column({ type: 'simple-array' })
-  photos: string[];
+  @Column({ type: 'text', array: true, default: [] })
+  photos!: string[];
 
-  @Column({ default: 'PENDING' })
-  status: string;
+  @Column({ name: 'policy_id' })
+  policy_id!: string;
 
-  @Column({ type: 'text', nullable: true })
-  damageDescription: string;
+  @ManyToOne(() => Policy, policy => policy.claims, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'policy_id' })
+  policy!: Policy;
 
-  @ManyToOne(() => User, user => user.claims)
-  user: User;
-
-  @ManyToOne(() => Policy, policy => policy.claims)
-  policy: Policy;
+  @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', name: 'last_updated' })
+  last_updated!: Date;
 }
