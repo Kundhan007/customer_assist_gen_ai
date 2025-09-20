@@ -36,3 +36,11 @@ class ModelInfoResponse(BaseModel):
     actual_dimension: int
     target_dimension: int
     requires_resizing: bool
+
+# Chat/Orchestrator Models
+class ChatRequest(BaseModel):
+    message: str = Field(..., description="The user's chat message")
+    user_id: Optional[str] = Field(None, description="Optional user ID for context")
+
+class ChatResponse(BaseModel):
+    response: str = Field(..., description="The agent's response to the user's message")
