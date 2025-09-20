@@ -9,9 +9,9 @@ export class PremiumController {
   @Post('calc')
   calculatePremium(@Body() calculatePremiumDto: CalculatePremiumDto) {
     return this.premiumService.calculatePremium(
-      calculatePremiumDto.policyId,
-      calculatePremiumDto.currentCoverage,
-      calculatePremiumDto.newCoverage,
+      calculatePremiumDto.policy_id,
+      calculatePremiumDto.previous_coverage,
+      calculatePremiumDto.new_coverage,
     );
   }
 

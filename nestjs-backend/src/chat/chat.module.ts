@@ -9,7 +9,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     HttpModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        baseURL: configService.get<string>('ORCH_URL'),
+        baseURL: configService.get<string>('ORCH_URL') || 'http://localhost:8000',
       }),
       inject: [ConfigService],
     }),

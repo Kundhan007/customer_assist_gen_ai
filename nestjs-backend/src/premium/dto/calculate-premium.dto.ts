@@ -2,12 +2,12 @@ import { IsString, IsNumber, IsOptional } from 'class-validator';
 
 export class CalculatePremiumDto {
   @IsString()
-  policyId: string;
+  policy_id!: string;
 
   @IsNumber()
   @IsOptional()
-  currentCoverage?: number;
+  previous_coverage?: number;
 
   @IsNumber()
-  newCoverage: number;
+  new_coverage!: number;
 }

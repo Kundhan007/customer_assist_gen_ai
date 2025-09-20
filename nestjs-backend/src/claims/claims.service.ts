@@ -1,96 +1,94 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Claim } from '../entities/claim.entity';
 import { ClaimStatus } from './dto/update-claim-status.dto';
 
 @Injectable()
 export class ClaimsService {
-  // Mock data store
-  private claims = [
-    {
-      id: '1',
-      policyId: 'policy-123',
-      description: 'Car accident on the highway',
-      vehicle: 'Toyota Camry',
-      photos: ['photo1.jpg', 'photo2.jpg'],
-      status: ClaimStatus.PENDING,
-    },
-  ];
+  constructor(
+    @InjectRepository(Claim)
+    private readonly claimRepository: Repository<Claim>,
+  ) {}
 
-  createClaim(
+  async createClaim(
     policyId: string,
     description: string,
     vehicle?: string,
     photos?: string[],
   ) {
-    const newClaim = {
-      id: Date.now().toString(),
-      policyId,
-      description,
-      vehicle,
-      photos,
-      status: ClaimStatus.PENDING,
-    };
-    this.claims.push(newClaim);
-    return newClaim;
+    // Generate a unique claim ID (similar to existing test data)
+    const claimId = 'CLM-' + Date.now().toString().slice(-6);
+    
+    const newClaim = this.claimRepository.create({
+      claim_id: claimId,
+      policy_id: policyId,
+      damage_description: description,
+      vehicle: vehicle || 'Unknown Vehicle',
+      photos: photos || [],
+      status: 'Submitted',
+    });
+    
+    return await this.claimRepository.save(newClaim);
   }
 
-  getClaimById(claimId: string) {
-    return this.claims.find((claim) => claim.id === claimId);
+  async getClaimById(claimId: string) {
+    return await this.claimRepository.findOne({ where: { claim_id: claimId } });
   }
 
-  getClaimsByPolicy(policyId: string) {
-    return this.claims.filter((claim) => claim.policyId === policyId);
+  async getClaimsByPolicy(policyId: string) {
+    return await this.claimRepository.find({ where: { policy_id: policyId } });
   }
 
-  getClaimsByStatus(status: ClaimStatus) {
-    return this.claims.filter((claim) => claim.status === status);
+  async getClaimsByStatus(status: ClaimStatus) {
+    return await this.claimRepository.find({ where: { status } });
   }
 
-  updateClaimStatus(claimId: string, newStatus: ClaimStatus) {
-    const claim = this.getClaimById(claimId);
+  async updateClaimStatus(claimId: string, newStatus: ClaimStatus) {
+    const claim = await this.getClaimById(claimId);
     if (claim) {
       claim.status = newStatus;
-      return claim;
+      return await this.claimRepository.save(claim);
     }
     return null;
   }
 
-  addPhotosToClaim(claimId: string, photos: string[]) {
-    const claim = this.getClaimById(claimId);
+  async addPhotosToClaim(claimId: string, photos: string[]) {
+    const claim = await this.getClaimById(claimId);
     if (claim) {
       claim.photos = [...(claim.photos || []), ...photos];
-      return claim;
+      return await this.claimRepository.save(claim);
     }
     return null;
   }
 
-  updateDamageDescription(claimId: string, description: string) {
-    const claim = this.getClaimById(claimId);
+  async updateDamageDescription(claimId: string, description: string) {
+    const claim = await this.getClaimById(claimId);
     if (claim) {
-      claim.description = description;
-      return claim;
+      claim.damage_description = description;
+      return await this.claimRepository.save(claim);
     }
     return null;
   }
 
-  getAllClaims() {
-    return this.claims;
+  async getAllClaims() {
+    return await this.claimRepository.find();
   }
 
-  getClaimStatistics() {
-    // Placeholder for statistics logic
+  async getClaimStatistics() {
+    const claims = await this.getAllClaims();
     return {
-      total: this.claims.length,
-      pending: this.claims.filter((c) => c.status === ClaimStatus.PENDING).length,
-      approved: this.claims.filter((c) => c.status === ClaimStatus.APPROVED).length,
-      rejected: this.claims.filter((c) => c.status === ClaimStatus.REJECTED).length,
+      total: claims.length,
+      pending: claims.filter((c) => c.status === 'pending').length,
+      approved: claims.filter((c) => c.status === 'approved').length,
+      rejected: claims.filter((c) => c.status === 'rejected').length,
     };
   }
 
-  deleteClaim(claimId: string) {
-    const index = this.claims.findIndex((claim) => claim.id === claimId);
-    if (index !== -1) {
-      const deletedClaim = this.claims.splice(index, 1);
-      return deletedClaim[0];
+  async deleteClaim(claimId: string) {
+    const claim = await this.getClaimById(claimId);
+    if (claim) {
+      return await this.claimRepository.remove(claim);
     }
     return null;
   }

@@ -9,5 +9,5 @@ export enum ClaimStatus {
 
 export class UpdateClaimStatusDto {
   @IsEnum(ClaimStatus)
-  newStatus: ClaimStatus;
+  newStatus!: ClaimStatus;
 }

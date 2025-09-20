@@ -7,18 +7,26 @@ import {
   Param,
   Body,
   Query,
+  UseGuards,
+  NotFoundException,
 } from '@nestjs/common';
 import { ClaimsService } from './claims.service';
 import { CreateClaimDto } from './dto/create-claim.dto';
 import { UpdateClaimStatusDto } from './dto/update-claim-status.dto';
+import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
 
 @Controller('claims')
+@UseGuards(JwtAuthGuard)
 export class ClaimsController {
   constructor(private readonly claimsService: ClaimsService) {}
 
   @Get(':id')
-  getClaimById(@Param('id') id: string) {
-    return this.claimsService.getClaimById(id);
+  async getClaimById(@Param('id') id: string) {
+    const claim = await this.claimsService.getClaimById(id);
+    if (!claim) {
+      throw new NotFoundException('Claim not found');
+    }
+    return claim;
   }
 
   @Post()
@@ -40,15 +48,23 @@ export class ClaimsController {
   }
 
   @Patch(':id/status')
-  updateClaimStatus(
+  async updateClaimStatus(
     @Param('id') id: string,
     @Body() updateClaimStatusDto: UpdateClaimStatusDto,
   ) {
-    return this.claimsService.updateClaimStatus(id, updateClaimStatusDto.newStatus);
+    const result = await this.claimsService.updateClaimStatus(id, updateClaimStatusDto.newStatus);
+    if (!result) {
+      throw new NotFoundException('Claim not found');
+    }
+    return result;
   }
 
   @Delete(':id')
-  deleteClaim(@Param('id') id: string) {
-    return this.claimsService.deleteClaim(id);
+  async deleteClaim(@Param('id') id: string) {
+    const result = await this.claimsService.deleteClaim(id);
+    if (!result) {
+      throw new NotFoundException('Claim not found');
+    }
+    return result;
   }
 }
