@@ -17,6 +17,8 @@ import { User } from './entities/user.entity';
 import { Policy } from './entities/policy.entity';
 import { Claim } from './entities/claim.entity';
 import { Premium } from './entities/premium.entity';
+import { RolesGuard } from './common/guards/roles.guard';
+import { Reflector } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -59,6 +61,7 @@ import { Premium } from './entities/premium.entity';
   controllers: [AppController],
   providers: [
     AppService,
+    RolesGuard,
     {
       provide: APP_PIPE,
       useValue: new ValidationPipe({
