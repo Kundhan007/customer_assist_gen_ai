@@ -32,9 +32,9 @@ describe('ClaimsController (e2e)', () => {
     await teardownTestDatabase();
   });
 
-  it('/claims/:id (GET) - success', () => {
+  it('/admin/claims/:id (GET) - success', () => {
     return request(app.getHttpServer())
-      .get(`/claims/${TEST_CLAIMS.CLM_001}`)
+      .get(`/admin/claims/${TEST_CLAIMS.CLM_001}`)
       .set('Authorization', `Bearer ${authToken}`)
       .expect(200)
       .expect((res) => {
@@ -42,16 +42,16 @@ describe('ClaimsController (e2e)', () => {
       });
   });
 
-  it('/claims/:id (GET) - not found', () => {
+  it('/admin/claims/:id (GET) - not found', () => {
     return request(app.getHttpServer())
-      .get(`/claims/${NON_EXISTENT_CLAIM_ID}`)
+      .get(`/admin/claims/${NON_EXISTENT_CLAIM_ID}`)
       .set('Authorization', `Bearer ${authToken}`)
       .expect(404);
   });
 
-  it('/claims (POST) - success', () => {
+  it('/user/claims (POST) - success', () => {
     return request(app.getHttpServer())
-      .post('/claims')
+      .post('/user/claims')
       .set('Authorization', `Bearer ${authToken}`)
       .send({
         policyId: TEST_POLICIES.GOLD_001,
@@ -65,17 +65,17 @@ describe('ClaimsController (e2e)', () => {
       });
   });
 
-  it('/claims (POST) - missing fields', () => {
+  it('/user/claims (POST) - missing fields', () => {
     return request(app.getHttpServer())
-      .post('/claims')
+      .post('/user/claims')
       .set('Authorization', `Bearer ${authToken}`)
       .send({ policyId: TEST_POLICIES.GOLD_001 })
       .expect(400);
   });
 
-  it('/claims (GET) - get all', () => {
+  it('/admin/claims (GET) - get all', () => {
     return request(app.getHttpServer())
-      .get('/claims')
+      .get('/admin/claims')
       .set('Authorization', `Bearer ${authToken}`)
       .expect(200)
       .expect((res) => {
@@ -84,9 +84,9 @@ describe('ClaimsController (e2e)', () => {
       });
   });
 
-  it('/claims (GET) - by policyId', () => {
+  it('/admin/claims (GET) - by policyId', () => {
     return request(app.getHttpServer())
-      .get(`/claims?policyId=${TEST_POLICIES.GOLD_001}`)
+      .get(`/admin/claims?policyId=${TEST_POLICIES.GOLD_001}`)
       .set('Authorization', `Bearer ${authToken}`)
       .expect(200)
       .expect((res) => {
@@ -97,35 +97,35 @@ describe('ClaimsController (e2e)', () => {
       });
   });
 
-  it('/claims/:id/status (PATCH) - success', () => {
+  it('/admin/claims/:id/status (POST) - success', () => {
     return request(app.getHttpServer())
-      .patch(`/claims/${TEST_CLAIMS.CLM_001}/status`)
+      .post(`/admin/claims/${TEST_CLAIMS.CLM_001}/status`)
       .set('Authorization', `Bearer ${authToken}`)
       .send({ newStatus: 'Approved' })
-      .expect(200)
+      .expect(201)
       .expect((res) => {
         expect(res.body).toHaveProperty('status', 'Approved');
       });
   });
 
-  it('/claims/:id/status (PATCH) - not found', () => {
+  it('/admin/claims/:id/status (POST) - not found', () => {
     return request(app.getHttpServer())
-      .patch(`/claims/${NON_EXISTENT_CLAIM_ID}/status`)
+      .post(`/admin/claims/${NON_EXISTENT_CLAIM_ID}/status`)
       .set('Authorization', `Bearer ${authToken}`)
       .send({ newStatus: 'Approved' })
       .expect(404);
   });
 
-  it('/claims/:id (DELETE) - success', () => {
+  it('/admin/claims/:id (DELETE) - success', () => {
     return request(app.getHttpServer())
-      .delete(`/claims/${TEST_CLAIMS.CLM_015}`)
+      .delete(`/admin/claims/${TEST_CLAIMS.CLM_015}`)
       .set('Authorization', `Bearer ${authToken}`)
       .expect(200);
   });
 
-  it('/claims/:id (DELETE) - not found', () => {
+  it('/admin/claims/:id (DELETE) - not found', () => {
     return request(app.getHttpServer())
-      .delete(`/claims/${NON_EXISTENT_CLAIM_ID}`)
+      .delete(`/admin/claims/${NON_EXISTENT_CLAIM_ID}`)
       .set('Authorization', `Bearer ${authToken}`)
       .expect(404);
   });

@@ -32,9 +32,9 @@ describe('PremiumController (e2e)', () => {
     await teardownTestDatabase();
   });
 
-  it('/premium/calc (POST) - success', () => {
+  it('/user/premium/calculate (POST) - success', () => {
     return request(app.getHttpServer())
-      .post('/premium/calc')
+      .post('/user/premium/calculate')
       .set('Authorization', `Bearer ${authToken}`)
       .send({ policy_id: TEST_POLICIES.GOLD_001, new_coverage: 100000 })
       .expect(201)
@@ -44,17 +44,17 @@ describe('PremiumController (e2e)', () => {
       });
   });
 
-  it('/premium/calc (POST) - missing fields', () => {
+  it('/user/premium/calculate (POST) - missing fields', () => {
     return request(app.getHttpServer())
-      .post('/premium/calc')
+      .post('/user/premium/calculate')
       .set('Authorization', `Bearer ${authToken}`)
       .send({ policy_id: TEST_POLICIES.GOLD_001 })
       .expect(400);
   });
 
-  it('/premium/:policyId (GET) - success', () => {
+  it('/user/premium/policy/:policyId (GET) - success', () => {
     return request(app.getHttpServer())
-      .get(`/premium/${TEST_POLICIES.GOLD_001}`)
+      .get(`/user/premium/policy/${TEST_POLICIES.GOLD_001}`)
       .set('Authorization', `Bearer ${authToken}`)
       .expect(200)
       .expect((res) => {
@@ -66,14 +66,10 @@ describe('PremiumController (e2e)', () => {
       });
   });
 
-  it('/premium/:policyId (GET) - no history', () => {
+  it('/user/premium/policy/:policyId (GET) - no history', () => {
     return request(app.getHttpServer())
-      .get(`/premium/${NON_EXISTENT_POLICY_ID}`)
+      .get(`/user/premium/policy/${NON_EXISTENT_POLICY_ID}`)
       .set('Authorization', `Bearer ${authToken}`)
-      .expect(200)
-      .expect((res) => {
-        expect(Array.isArray(res.body)).toBe(true);
-        expect(res.body.length).toBe(0);
-      });
+      .expect(404);
   });
 });
