@@ -9,7 +9,7 @@
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
-    "start:dev": "nest start --watch",
+    "start:dev": "lsof -ti:3000 | xargs kill -9 || true && nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
@@ -30,7 +30,7 @@
     "python:start": "cd .. && ./run_api.sh",
     "python:setup": "cd .. && ./setup_api.sh",
     "python:test": "cd .. && ./test_run.sh",
-    "orchestrator:start": "cd ../python-orchestrator && ./start_fastapi.sh",
+    "orchestrator:start": "lsof -ti:2345 | xargs kill -9 || true && cd ../python_orchestrator && ./start_fastapi.sh",
     "orchestrator:stop": "lsof -ti:2345 | xargs kill -9",
     "dev:all": "concurrently \"npm run orchestrator:start\" \"npm run start:dev\""
   },
