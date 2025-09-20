@@ -38,7 +38,7 @@ describe('AdminController (e2e)', () => {
     return request(app.getHttpServer())
       .post('/admin/kb')
       .set('Authorization', `Bearer ${authToken}`)
-      .expect(500)
+      .expect(400)
       .expect((res) => {
         expect(res.body).toHaveProperty('message', 'No file provided');
       });
