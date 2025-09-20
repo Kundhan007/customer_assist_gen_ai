@@ -5,6 +5,7 @@ export class AdminService {
   // Mock data store for knowledge base entries
   private knowledgeBase = [
     { id: '1', filename: 'faq.md', content: 'FAQ content here' },
+    { id: 'test-kb-001', filename: 'test-file.md', content: 'Test content here' },
   ];
 
   uploadKnowledgeBase(file: Express.Multer.File) {
