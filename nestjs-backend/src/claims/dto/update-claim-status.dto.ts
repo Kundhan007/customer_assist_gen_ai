@@ -1,13 +1,14 @@
 import { IsString, IsEnum } from 'class-validator';
 
 export enum ClaimStatus {
-  PENDING = 'PENDING',
-  APPROVED = 'APPROVED',
-  REJECTED = 'REJECTED',
-  UNDER_REVIEW = 'UNDER_REVIEW',
+  SUBMITTED = 'Submitted',
+  IN_REVIEW = 'In Review',
+  APPROVED = 'Approved',
+  REJECTED = 'Rejected',
+  CLOSED = 'Closed',
 }
 
 export class UpdateClaimStatusDto {
   @IsEnum(ClaimStatus)
-  newStatus: ClaimStatus;
+  newStatus!: ClaimStatus;
 }

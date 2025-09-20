@@ -2,10 +2,10 @@ import { IsString, IsOptional, IsArray } from 'class-validator';
 
 export class CreateClaimDto {
   @IsString()
-  policyId: string;
+  policyId!: string;
 
   @IsString()
-  description: string;
+  description!: string;
 
   @IsString()
   @IsOptional()
