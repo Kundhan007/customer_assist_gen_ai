@@ -41,6 +41,7 @@ class ModelInfoResponse(BaseModel):
 class ChatRequest(BaseModel):
     message: str = Field(..., description="The user's chat message")
     user_id: Optional[str] = Field(None, description="Optional user ID for context")
+    auth_token: Optional[str] = Field(None, description="JWT authentication token for API calls")
 
 class ChatResponse(BaseModel):
     response: str = Field(..., description="The agent's response to the user's message")
