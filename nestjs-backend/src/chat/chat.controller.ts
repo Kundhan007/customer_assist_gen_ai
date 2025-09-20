@@ -37,6 +37,6 @@ export class ChatController {
   async sendMessage(@Body() body: { message: string; sessionId?: string }, @Request() req: AuthenticatedRequest) {
     const { message, sessionId } = body;
     const userRole = req.user?.role || 'user';
-    return this.chatService.forwardToOrchestrator(message, sessionId, userRole);
+    return this.chatService.forwardToOrchestrator(message, sessionId, userRole, req);
   }
 }

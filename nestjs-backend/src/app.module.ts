@@ -18,8 +18,10 @@ import { User } from './entities/user.entity';
 import { Policy } from './entities/policy.entity';
 import { Claim } from './entities/claim.entity';
 import { Premium } from './entities/premium.entity';
+import { KnowledgeBase } from './entities/knowledge-base.entity';
 import { RolesGuard } from './common/guards/roles.guard';
 import { Reflector } from '@nestjs/core';
+import { LoggerService } from './utils/logger.service';
 
 @Module({
   imports: [
@@ -34,7 +36,7 @@ import { Reflector } from '@nestjs/core';
         return {
           type: 'postgres',
           url: dbUrl,
-          entities: [User, Policy, Claim, Premium],
+          entities: [User, Policy, Claim, Premium, KnowledgeBase],
           synchronize: process.env.NODE_ENV === 'development',
           logging: process.env.NODE_ENV === 'development',
           pool: {
@@ -63,6 +65,7 @@ import { Reflector } from '@nestjs/core';
   controllers: [AppController],
   providers: [
     AppService,
+    LoggerService,
     RolesGuard,
     {
       provide: APP_PIPE,

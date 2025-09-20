@@ -26,6 +26,8 @@
     "setup:faq-vectors:test": "ts-node test/setup-faq-vectors.ts",
     "setup:faq-vectors:prod": "ts-node src/database/seed/setup-production-vectors.ts",
     "generate-vectors": "ts-node src/scripts/generate-vectors.ts",
+    "vectorize:faqs": "ts-node src/scripts/bulk-vectorize.ts",
+    "test:faq-vectorization": "ts-node test/test-faq-vectorization.ts",
     "db:stats": "ts-node src/database/seed/setup-production-vectors.ts --stats",
     "python:start": "cd .. && ./run_api.sh",
     "python:setup": "cd .. && ./setup_api.sh",
@@ -46,6 +48,7 @@
     "@nestjs/typeorm": "^10.0.2",
     "@types/bcrypt": "^6.0.0",
     "@types/multer": "^2.0.0",
+    "axios": "^1.12.2",
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
@@ -56,7 +59,10 @@
     "pg": "^8.16.3",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
-    "typeorm": "^0.3.17"
+    "typeorm": "^0.3.17",
+    "winston": "^3.17.0",
+    "winston-daily-rotate-file": "^5.0.0",
+    "chalk": "^4.1.2"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",

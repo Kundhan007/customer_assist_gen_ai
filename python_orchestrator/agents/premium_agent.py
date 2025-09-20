@@ -4,7 +4,7 @@ import logging
 from typing import Dict, Any
 
 logger = logging.getLogger(__name__)
-NESTJS_BACKEND_URL = os.getenv("NESTJS_BACKEND_URL", "http://localhost:3001")
+NESTJS_BACKEND_URL = os.getenv("NESTJS_BACKEND_URL", "http://localhost:3000")
 
 async def calculate_premium(premium_data: Dict[str, Any], auth_token: str) -> Dict[str, Any]:
     """Calculate premium for a policy."""

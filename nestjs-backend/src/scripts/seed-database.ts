@@ -126,7 +126,7 @@ const main = async () => {
     
     // Step 4: Process FAQ vectors
     console.log('\n📚 Processing production FAQ vectors...');
-    const databaseUrl = process.env.DATABASE_URL || 'postgresql://user:password@localhost:5432/car_insurance';
+    const databaseUrl = process.env.DATABASE_URL || process.env.DB_URL;
     const faqProcessor = new ProductionFAQVectorProcessor(databaseUrl);
     await faqProcessor.processFAQVectors();
     
