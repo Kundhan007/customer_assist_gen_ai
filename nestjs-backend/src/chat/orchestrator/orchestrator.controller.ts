@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, Req } from '@nestjs/common';
 import { OrchestratorService } from './orchestrator.service';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { Request } from 'express';
 
 @ApiTags('orchestrator')
 @Controller('orchestrator')
@@ -19,10 +20,11 @@ export class OrchestratorController {
   @ApiResponse({ status: 200, description: 'Returns the orchestrator response' })
   @ApiResponse({ status: 503, description: 'Orchestrator service unavailable' })
   async chat(
-    @Body() body: { message: string; sessionId?: string; userRole?: string }
+    @Body() body: { message: string; sessionId?: string; userRole?: string },
+    @Req() request: Request
   ) {
     const { message, sessionId, userRole = 'user' } = body;
-    return this.orchestratorService.forwardToOrchestrator(message, sessionId, userRole);
+    return this.orchestratorService.forwardToOrchestrator(message, sessionId, userRole, request);
   }
 
   @Get('health')
