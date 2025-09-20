@@ -1,6 +1,6 @@
-import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body } from '@nestjs/common';
 import { OrchestratorService } from './orchestrator.service';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 @ApiTags('orchestrator')
 @Controller('orchestrator')
@@ -12,32 +12,6 @@ export class OrchestratorController {
   @ApiResponse({ status: 200, description: 'Returns the current status of the orchestrator service' })
   getStatus() {
     return this.orchestratorService.getOrchestratorStatus();
-  }
-
-  @Post('start')
-  @ApiOperation({ summary: 'Start orchestrator' })
-  @ApiResponse({ status: 200, description: 'Orchestrator started successfully' })
-  @ApiResponse({ status: 400, description: 'Orchestrator is already running' })
-  async startOrchestrator() {
-    await this.orchestratorService.startOrchestrator();
-    return { message: 'Orchestrator started successfully' };
-  }
-
-  @Post('stop')
-  @ApiOperation({ summary: 'Stop orchestrator' })
-  @ApiResponse({ status: 200, description: 'Orchestrator stopped successfully' })
-  @ApiResponse({ status: 400, description: 'Orchestrator is not running' })
-  async stopOrchestrator() {
-    await this.orchestratorService.stopOrchestrator();
-    return { message: 'Orchestrator stopped successfully' };
-  }
-
-  @Post('restart')
-  @ApiOperation({ summary: 'Restart orchestrator' })
-  @ApiResponse({ status: 200, description: 'Orchestrator restarted successfully' })
-  async restartOrchestrator() {
-    await this.orchestratorService.restartOrchestrator();
-    return { message: 'Orchestrator restarted successfully' };
   }
 
   @Post('chat')
