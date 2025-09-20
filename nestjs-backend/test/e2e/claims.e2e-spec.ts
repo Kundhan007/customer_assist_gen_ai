@@ -101,10 +101,10 @@ describe('ClaimsController (e2e)', () => {
     return request(app.getHttpServer())
       .patch(`/claims/${TEST_CLAIMS.CLM_001}/status`)
       .set('Authorization', `Bearer ${authToken}`)
-      .send({ newStatus: 'APPROVED' })
+      .send({ newStatus: 'Approved' })
       .expect(200)
       .expect((res) => {
-        expect(res.body).toHaveProperty('status', 'APPROVED');
+        expect(res.body).toHaveProperty('status', 'Approved');
       });
   });
 
@@ -112,7 +112,7 @@ describe('ClaimsController (e2e)', () => {
     return request(app.getHttpServer())
       .patch(`/claims/${NON_EXISTENT_CLAIM_ID}/status`)
       .set('Authorization', `Bearer ${authToken}`)
-      .send({ newStatus: 'APPROVED' })
+      .send({ newStatus: 'Approved' })
       .expect(404);
   });
 
