@@ -1,5 +1,12 @@
 # NestJS Backend API Routes
 
+This document lists all the API routes currently implemented in the NestJS backend.
+
+## General Application
+
+- `GET /` - Provides basic API information and a list of available endpoints.
+- `GET /health` - Returns the health status of the application and its dependencies.
+
 ## Authentication
 
 - `POST /auth/login` - Authenticates a user and returns a JWT token.
@@ -25,3 +32,25 @@
 
 - `POST /admin/kb` - Uploads a file to the knowledge base.
 - `DELETE /admin/kb/:id` - Deletes a specific entry from the knowledge base.
+
+## Users
+
+- `GET /users` - Retrieves a list of all users.
+- `GET /users/:id` - Retrieves a specific user by their ID.
+- `POST /users` - Creates a new user.
+- `PATCH /users/:id/email` - Updates a user's email.
+- `DELETE /users/:id` - Deletes a user and cascades to their policies/claims.
+- `GET /users/statistics` - Gets user statistics (total counts, role counts, recent registrations).
+
+## Policies
+
+- `POST /policies` - Creates a new policy for a user.
+- `GET /policies/:id` - Retrieves a specific policy by its ID.
+- `GET /policies/user/:userId` - Retrieves all policies for a specific user.
+- `PATCH /policies/:id` - Updates details of an existing policy (plan, coverage, etc.).
+- `DELETE /policies/:id` - Cancels/Deletes a policy.
+
+## Claim History
+
+- `GET /claim-history/user/:userId` - Retrieves the complete claim history for a given user, across all their policies.
+- `GET /claim-history/:claimId` - Retrieves detailed information for a single claim, including its full history and status.
