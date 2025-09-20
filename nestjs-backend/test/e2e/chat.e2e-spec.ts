@@ -3,6 +3,7 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '@/app.module';
 import { setupTestDatabase, teardownTestDatabase } from '@test/database.setup';
+import { TEST_USERS, TEST_SESSION_ID } from '@test/test-data';
 
 describe('ChatController (e2e)', () => {
   let app: INestApplication;
@@ -22,7 +23,7 @@ describe('ChatController (e2e)', () => {
     // Login to get token
     const loginResponse = await request(app.getHttpServer())
       .post('/auth/login')
-      .send({ email: 'test@example.com', password: 'password' });
+      .send({ email: TEST_USERS.JOHN_DOE.email, password: TEST_USERS.JOHN_DOE.password });
     authToken = loginResponse.body.access_token;
   });
 
@@ -35,7 +36,7 @@ describe('ChatController (e2e)', () => {
     return request(app.getHttpServer())
       .post('/chat')
       .set('Authorization', `Bearer ${authToken}`)
-      .send({ message: 'Hello', sessionId: 'new-session-123' })
+      .send({ message: 'Hello', sessionId: TEST_SESSION_ID })
       .expect(201)
       .expect((res) => {
         expect(res.body).toHaveProperty('response');
@@ -46,7 +47,7 @@ describe('ChatController (e2e)', () => {
     return request(app.getHttpServer())
       .post('/chat')
       .set('Authorization', `Bearer ${authToken}`)
-      .send({ message: 'Follow up', sessionId: 'new-session-123' })
+      .send({ message: 'Follow up', sessionId: TEST_SESSION_ID })
       .expect(201)
       .expect((res) => {
         expect(res.body).toHaveProperty('response');

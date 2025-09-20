@@ -3,6 +3,7 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '@/app.module';
 import { setupTestDatabase, teardownTestDatabase } from '@test/database.setup';
+import { TEST_USERS, TEST_POLICIES, TEST_CLAIMS, NON_EXISTENT_CLAIM_ID } from '@test/test-data';
 
 describe('ClaimsController (e2e)', () => {
   let app: INestApplication;
@@ -22,7 +23,7 @@ describe('ClaimsController (e2e)', () => {
     // Login to get token
     const loginResponse = await request(app.getHttpServer())
       .post('/auth/login')
-      .send({ email: 'test@example.com', password: 'password' });
+      .send({ email: TEST_USERS.JOHN_DOE.email, password: TEST_USERS.JOHN_DOE.password });
     authToken = loginResponse.body.access_token;
   });
 
@@ -33,17 +34,17 @@ describe('ClaimsController (e2e)', () => {
 
   it('/claims/:id (GET) - success', () => {
     return request(app.getHttpServer())
-      .get('/claims/test-claim-AAA')
+      .get(`/claims/${TEST_CLAIMS.CLM_001}`)
       .set('Authorization', `Bearer ${authToken}`)
       .expect(200)
       .expect((res) => {
-        expect(res.body).toHaveProperty('id', 'test-claim-AAA');
+        expect(res.body).toHaveProperty('claim_id', TEST_CLAIMS.CLM_001);
       });
   });
 
   it('/claims/:id (GET) - not found', () => {
     return request(app.getHttpServer())
-      .get('/claims/non-existent-claim')
+      .get(`/claims/${NON_EXISTENT_CLAIM_ID}`)
       .set('Authorization', `Bearer ${authToken}`)
       .expect(404);
   });
@@ -53,14 +54,14 @@ describe('ClaimsController (e2e)', () => {
       .post('/claims')
       .set('Authorization', `Bearer ${authToken}`)
       .send({
-        policyId: 'policy-789',
+        policyId: TEST_POLICIES.GOLD_001,
         description: 'New claim for testing',
-        vehicle: { make: 'Ford', model: 'Mustang', year: 2021 },
+        vehicle: '2021 Ford Mustang',
       })
       .expect(201)
       .expect((res) => {
-        expect(res.body).toHaveProperty('id');
-        expect(res.body).toHaveProperty('policyId', 'policy-789');
+        expect(res.body).toHaveProperty('claim_id');
+        expect(res.body).toHaveProperty('policy_id', TEST_POLICIES.GOLD_001);
       });
   });
 
@@ -68,7 +69,7 @@ describe('ClaimsController (e2e)', () => {
     return request(app.getHttpServer())
       .post('/claims')
       .set('Authorization', `Bearer ${authToken}`)
-      .send({ policyId: 'policy-789' })
+      .send({ policyId: TEST_POLICIES.GOLD_001 })
       .expect(400);
   });
 
@@ -85,22 +86,22 @@ describe('ClaimsController (e2e)', () => {
 
   it('/claims (GET) - by policyId', () => {
     return request(app.getHttpServer())
-      .get('/claims?policyId=policy-123')
+      .get(`/claims?policyId=${TEST_POLICIES.GOLD_001}`)
       .set('Authorization', `Bearer ${authToken}`)
       .expect(200)
       .expect((res) => {
         expect(Array.isArray(res.body)).toBe(true);
-        res.body.forEach((claim) => {
-          expect(claim).toHaveProperty('policyId', 'policy-123');
+        res.body.forEach((claim: any) => {
+          expect(claim).toHaveProperty('policy_id', TEST_POLICIES.GOLD_001);
         });
       });
   });
 
   it('/claims/:id/status (PATCH) - success', () => {
     return request(app.getHttpServer())
-      .patch('/claims/test-claim-AAA/status')
+      .patch(`/claims/${TEST_CLAIMS.CLM_001}/status`)
       .set('Authorization', `Bearer ${authToken}`)
-      .send({ status: 'APPROVED' })
+      .send({ newStatus: 'APPROVED' })
       .expect(200)
       .expect((res) => {
         expect(res.body).toHaveProperty('status', 'APPROVED');
@@ -109,22 +110,22 @@ describe('ClaimsController (e2e)', () => {
 
   it('/claims/:id/status (PATCH) - not found', () => {
     return request(app.getHttpServer())
-      .patch('/claims/non-existent-claim/status')
+      .patch(`/claims/${NON_EXISTENT_CLAIM_ID}/status`)
       .set('Authorization', `Bearer ${authToken}`)
-      .send({ status: 'APPROVED' })
+      .send({ newStatus: 'APPROVED' })
       .expect(404);
   });
 
   it('/claims/:id (DELETE) - success', () => {
     return request(app.getHttpServer())
-      .delete('/claims/test-claim-BBB')
+      .delete(`/claims/${TEST_CLAIMS.CLM_015}`)
       .set('Authorization', `Bearer ${authToken}`)
       .expect(200);
   });
 
   it('/claims/:id (DELETE) - not found', () => {
     return request(app.getHttpServer())
-      .delete('/claims/non-existent-claim')
+      .delete(`/claims/${NON_EXISTENT_CLAIM_ID}`)
       .set('Authorization', `Bearer ${authToken}`)
       .expect(404);
   });
