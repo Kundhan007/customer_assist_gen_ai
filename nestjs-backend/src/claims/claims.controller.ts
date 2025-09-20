@@ -10,6 +10,7 @@ import { ClaimsService } from './claims.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 
 interface RequestWithUser {
   user: {
@@ -19,6 +20,7 @@ interface RequestWithUser {
   };
 }
 
+@ApiTags('Claims')
 @Controller('claims')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class ClaimsController {
@@ -26,6 +28,13 @@ export class ClaimsController {
 
   @Get(':id')
   @Roles('user', 'admin')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get claim by ID' })
+  @ApiResponse({ status: 200, description: 'Claim found' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'Claim not found' })
+  @ApiParam({ name: 'id', description: 'Claim ID', example: 'CLM-P001' })
   async getClaimById(@Param('id') id: string, @Request() req: RequestWithUser) {
     const claim = await this.claimsService.getClaimById(id);
     if (!claim) {
@@ -47,6 +56,11 @@ export class ClaimsController {
 
   @Get()
   @Roles('user', 'admin')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get all claims (user sees own claims, admin sees all)' })
+  @ApiResponse({ status: 200, description: 'List of claims' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async getClaims(@Request() req: RequestWithUser) {
     // Users see only their claims, admins see all claims
     if (req.user.role === 'user') {

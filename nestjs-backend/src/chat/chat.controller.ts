@@ -1,7 +1,7 @@
 import { Controller, Post, Body, UseGuards, Request } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import { Request as ExpressRequest } from 'express';
 
 interface UserPayload {
@@ -26,6 +26,14 @@ export class ChatController {
   @ApiOperation({ summary: 'Send a chat message to the orchestrator' })
   @ApiResponse({ status: 200, description: 'Returns the orchestrator response' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiBody({
+    schema: {
+      example: {
+        message: 'Hello, I need help with my insurance claim. My policy number is GOLD-P001 and I was involved in a major collision on the highway.',
+        sessionId: 'user-session-001'
+      }
+    }
+  })
   async sendMessage(@Body() body: { message: string; sessionId?: string }, @Request() req: AuthenticatedRequest) {
     const { message, sessionId } = body;
     const userRole = req.user?.role || 'user';
