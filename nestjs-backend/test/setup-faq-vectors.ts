@@ -9,7 +9,7 @@ import * as dotenv from 'dotenv';
 dotenv.config({ path: path.join(__dirname, '..', '.env.test') });
 
 const getDbConfig = () => {
-  const dbUrl = process.env.DB_URL;₹
+  const dbUrl = process.env.DB_URL;
   if (!dbUrl) {
     throw new Error('DB_URL environment variable is not set');
   }
