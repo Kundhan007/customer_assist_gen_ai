@@ -42,7 +42,7 @@ describe('SimpleClaimAuthE2E', () => {
     };
 
     const response = await request(app.getHttpServer())
-      .post('/claims')
+      .post('/user/claims')
       .set('Authorization', `Bearer ${authToken}`)
       .send(claimData)
       .expect(201);
@@ -61,35 +61,39 @@ describe('SimpleClaimAuthE2E', () => {
     };
 
     await request(app.getHttpServer())
-      .post('/claims')
+      .post('/user/claims')
       .send(claimData)
       .expect(401);
   });
 
   it('should get user claims with JWT authentication', async () => {
     const response = await request(app.getHttpServer())
-      .get(`/claims?policyId=${TEST_POLICIES.GOLD_001}`)
+      .get('/user/claims')
       .set('Authorization', `Bearer ${authToken}`)
       .expect(200);
 
     expect(Array.isArray(response.body)).toBe(true);
     expect(response.body.length).toBeGreaterThan(0);
     
-    // Verify claims belong to the specified policy
+    // Verify claims have the expected properties
     response.body.forEach((claim: any) => {
-      expect(claim).toHaveProperty('policy_id', TEST_POLICIES.GOLD_001);
+      expect(claim).toHaveProperty('claim_id');
+      expect(claim).toHaveProperty('policy_id');
+      expect(claim).toHaveProperty('status');
+      expect(claim).toHaveProperty('damage_description');
+      expect(claim).toHaveProperty('vehicle');
     });
   });
 
   it('should fail to get claims without JWT token', async () => {
     await request(app.getHttpServer())
-      .get('/claims')
+      .get('/user/claims')
       .expect(401);
   });
 
   it('should get specific claim by ID with JWT authentication', async () => {
     const response = await request(app.getHttpServer())
-      .get(`/claims/${TEST_CLAIMS.CLM_001}`)
+      .get(`/user/claims/${TEST_CLAIMS.CLM_001}`)
       .set('Authorization', `Bearer ${authToken}`)
       .expect(200);
 
@@ -99,7 +103,7 @@ describe('SimpleClaimAuthE2E', () => {
 
   it('should fail to get specific claim without JWT token', async () => {
     await request(app.getHttpServer())
-      .get(`/claims/${TEST_CLAIMS.CLM_001}`)
+      .get(`/user/claims/${TEST_CLAIMS.CLM_001}`)
       .expect(401);
   });
 });
