@@ -26,7 +26,10 @@
     "setup:faq-vectors:test": "ts-node test/setup-faq-vectors.ts",
     "setup:faq-vectors:prod": "ts-node src/database/seed/setup-production-vectors.ts",
     "generate-vectors": "ts-node src/scripts/generate-vectors.ts",
-    "db:stats": "ts-node src/database/seed/setup-production-vectors.ts --stats"
+    "db:stats": "ts-node src/database/seed/setup-production-vectors.ts --stats",
+    "python:start": "cd .. && ./run_api.sh",
+    "python:setup": "cd .. && ./setup_api.sh",
+    "python:test": "cd .. && ./test_run.sh"
   },
   "dependencies": {
     "@nestjs/axios": "^4.0.1",
@@ -36,6 +39,7 @@
     "@nestjs/jwt": "^10.1.0",
     "@nestjs/passport": "^10.0.0",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/swagger": "^7.4.2",
     "@nestjs/typeorm": "^10.0.2",
     "@types/bcrypt": "^6.0.0",
     "@types/multer": "^2.0.0",
