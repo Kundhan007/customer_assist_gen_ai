@@ -11,46 +11,84 @@ This document lists all the API routes currently implemented in the NestJS backe
 
 - `POST /auth/login` - Authenticates a user and returns a JWT token.
 
-## Chat
+## User Routes (Auto-scoped to authenticated user - No ID required)
 
-- `POST /chat` - Sends a user message to be forwarded to the orchestrator.
+### Profile Management
+- `GET /user/profile` - Get user's own profile
+- `PATCH /user/profile` - Update user's own profile
 
-## Claims
+### Policy Management (User sees only their policies)
+- `GET /user/policies` - Get user's policies
+- `GET /user/policies/active` - Get user's active policies only
+- `GET /user/policies/:id` - Get specific policy details (only if user owns it)
 
-- `GET /claims/:id` - Retrieves a specific claim by its ID.
-- `POST /claims` - Creates a new insurance claim.
-- `GET /claims` - Retrieves a list of claims, optionally filtered by policy ID.
-- `PATCH /claims/:id/status` - Updates the status of a specific claim.
-- `DELETE /claims/:id` - Deletes a specific claim.
+### Claims Management (User sees only their claims)
+- `POST /user/claims` - Create new claim (auto-associated with user)
+- `GET /user/claims` - Get user's claims
+- `GET /user/claims/active` - Get user's active claims only
+- `GET /user/claims/:id` - Get specific claim details (only if user owns it)
+- `GET /user/claims/:id/history` - Get claim history (only if user owns it)
 
-## Premium
+### Premium Management (User sees only their premium data)
+- `POST /user/premium/calculate` - Calculate premium for a policy
+- `GET /user/premium/history` - Get user's premium history across all policies
+- `GET /user/premium/policy/:policyId` - Get premium history for specific user policy
 
-- `POST /premium/calc` - Calculates the premium based on policy details.
-- `GET /premium/:policyId` - Retrieves the premium history for a specific policy.
+### Chat Functionality
+- `POST /user/chat` - Send chat message
+- `GET /user/chat/history` - Get user's chat history
+- `GET /user/chat/history/:sessionId` - Get specific chat session
 
-## Admin
+### Claim History (Auto-scoped to user)
+- `GET /user/claim-history` - Get user's complete claim history
+- `GET /user/claim-history/claim/:claimId` - Get history for specific user claim
 
-- `POST /admin/kb` - Uploads a file to the knowledge base.
-- `DELETE /admin/kb/:id` - Deletes a specific entry from the knowledge base.
+## Admin Routes (Admin Only - IDs required for managing any entity)
 
-## Users
+### User Management
+- `GET /admin/users` - List all users
+- `POST /admin/users` - Create new user
+- `GET /admin/users/:id` - Get specific user details
+- `GET /admin/users/:id/policies` - Get user's policies
+- `GET /admin/users/:id/claims` - Get user's claims
 
-- `GET /users` - Retrieves a list of all users.
-- `GET /users/:id` - Retrieves a specific user by their ID.
-- `POST /users` - Creates a new user.
-- `PATCH /users/:id/email` - Updates a user's email.
-- `DELETE /users/:id` - Deletes a user and cascades to their policies/claims.
-- `GET /users/statistics` - Gets user statistics (total counts, role counts, recent registrations).
+### Policy Management (Any policy in system)
+- `GET /admin/policies` - List all policies
+- `POST /admin/policies` - Create policy
+- `GET /admin/policies/:id` - Get specific policy details
 
-## Policies
+### Claims Management (Any claim in system)
+- `GET /admin/claims` - List all claims
+- `GET /admin/claims/:id` - Get specific claim details
+- `POST /admin/claims/:id/status` - Update claim status
+- `DELETE /admin/claims/:id` - Delete claim
 
-- `POST /policies` - Creates a new policy for a user.
-- `GET /policies/:id` - Retrieves a specific policy by its ID.
-- `GET /policies/user/:userId` - Retrieves all policies for a specific user.
-- `PATCH /policies/:id` - Updates details of an existing policy (plan, coverage, etc.).
-- `DELETE /policies/:id` - Cancels/Deletes a policy.
+### System Management
+- `POST /admin/kb` - Upload knowledge base
+- `DELETE /admin/kb/:id` - Delete knowledge base entry
+- `GET /admin/statistics` - Get system statistics
+- `GET /admin/statistics/users` - Get user statistics
+- `GET /admin/statistics/policies` - Get policy statistics
+- `GET /admin/statistics/claims` - Get claim statistics
 
-## Claim History
+### Premium Management (System-wide)
+- `GET /admin/premium/history` - Get all premium history
+- `GET /admin/premium/policy/:policyId` - Get premium history for any policy
 
-- `GET /claim-history/user/:userId` - Retrieves the complete claim history for a given user, across all their policies.
-- `GET /claim-history/:claimId` - Retrieves detailed information for a single claim, including its full history and status.
+## Shared Routes (Context-aware behavior based on user role)
+
+### Policies
+- `GET /policies/:id` - Users: only their own policies, Admins: any policy
+
+### Claims
+- `GET /claims/:id` - Users: only their own claims, Admins: any claim
+- `GET /claims` - Users: only their claims, Admins: all claims
+
+### Premium
+- `GET /premium/:policyId` - Users: only their policy premium, Admins: any policy premium
+
+### Claim History
+- `GET /claim-history/claim/:claimId` - Users: only their claim history, Admins: any claim history
+
+### Chat (Admin only)
+- `GET /chat/statistics` - Get chat usage statistics

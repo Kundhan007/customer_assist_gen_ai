@@ -6,18 +6,18 @@ This Postman collection allows you to test the Customer Assist Gen AI applicatio
 
 1. **Install Postman**: Download and install Postman from [https://www.postman.com/](https://www.postman.com/)
 
-2. **Start the Application**: Make sure your NestJS backend is running on `http://localhost:3001`
+2. **Start the Application**: Make sure your NestJS backend is running on `http://localhost:3000`
 
    ```bash
    cd nestjs-backend
-   npm run start:dev
+   npm run start:prod
    ```
 
-3. **Database Setup**: Ensure your test database is set up and running
+3. **Database Setup**: Ensure your production database is set up and running
 
    ```bash
    cd nestjs-backend
-   npm run setup:test-db
+   npm run seed:production
    ```
 
 ## Importing the Collection
@@ -32,8 +32,8 @@ This Postman collection allows you to test the Customer Assist Gen AI applicatio
 The collection is organized into the following folders:
 
 ### 🔐 Authentication
-- **Login - Admin User**: Login as admin user (admin@test.com / secret)
-- **Login - Regular User**: Login as regular user (john.doe@test.com / secret)
+- **Login - Admin User**: Login as admin user (admin@prod.com / password)
+- **Login - Regular User**: Login as regular user (demo.user@prod.com / password)
 - **Login - Invalid Credentials**: Test with wrong credentials
 
 ### 👥 Users
@@ -84,14 +84,14 @@ The collection is organized into the following folders:
 
 The collection uses the following environment variables:
 
-- `base_url`: Base URL of the API (default: `http://localhost:3001`)
+- `base_url`: Base URL of the API (default: `http://localhost:3000`)
 - `jwt_token`: JWT token for authentication (automatically set after login)
 
 ### Setting Up Environment Variables
 
 1. In Postman, click on the gear icon (⚙️) in the top right corner
 2. Go to "Variables" tab
-3. Set the `base_url` to your API endpoint (default is `http://localhost:3001`)
+3. Set the `base_url` to your API endpoint (default is `http://localhost:3000`)
 4. The `jwt_token` will be automatically set when you run the login requests
 
 ## Authentication Flow
@@ -105,23 +105,35 @@ The collection uses the following environment variables:
 The collection uses the following test data:
 
 ### Users
-- Admin: `admin@test.com` / `secret`
-- Regular User: `john.doe@test.com` / `secret`
-- Support: `support@test.com` / `secret`
+- Admin: `admin@prod.com` / `password`
+- Admin: `superadmin@prod.com` / `password`
+- Admin: `support@prod.com` / `password`
+- Regular User: `demo.user@prod.com` / `password`
+- Regular User: `sarah.johnson@prod.com` / `password`
+- Regular User: `michael.chen@prod.com` / `password`
+- Regular User: `emma.wilson@prod.com` / `password`
+- Regular User: `robert.davis@prod.com` / `password`
+- Regular User: `lisa.anderson@prod.com` / `password`
+- Regular User: `david.martinez@prod.com` / `password`
+- Regular User: `jennifer.taylor@prod.com` / `password`
+- Regular User: `james.thomas@prod.com` / `password`
+- Regular User: `mary.garcia@prod.com` / `password`
+- Regular User: `william.rodriguez@prod.com` / `password`
+- Regular User: `patricia.clark@prod.com` / `password`
 
 ### Policy IDs
-- Gold Policies: `GOLD-001`, `GOLD-002`, etc.
-- Silver Policies: `SILVER-001`, `SILVER-002`, etc.
+- Gold Policies: `GOLD-P001`, `GOLD-P002`, `GOLD-P003`, etc.
+- Silver Policies: `SILVER-P001`, `SILVER-P002`, `SILVER-P003`, etc.
 
 ### Claim IDs
-- Claims: `CLM-001`, `CLM-002`, etc.
+- Claims: `CLM-P001`, `CLM-P002`, `CLM-P003`, etc.
 
 ## Sample Request Bodies
 
 ### Creating a Gold Policy
 ```json
 {
-  "user_id": "1",
+  "user_id": "1881ad29-6b67-49f8-b45d-378a67615e88",
   "plan_name": "Gold",
   "collision_coverage": 300000,
   "roadside_assistance": true,
@@ -133,7 +145,7 @@ The collection uses the following test data:
 ### Filing a Claim
 ```json
 {
-  "policyId": "GOLD-001",
+  "policyId": "GOLD-P001",
   "description": "Car accident on highway - rear-ended by another vehicle",
   "vehicle": "Toyota Camry 2020, License: ABC123",
   "photos": ["photo1.jpg", "photo2.jpg", "damage_report.pdf"]
@@ -143,7 +155,7 @@ The collection uses the following test data:
 ### Calculating Premium
 ```json
 {
-  "policy_id": "GOLD-001",
+  "policy_id": "GOLD-P001",
   "previous_coverage": 250000,
   "new_coverage": 350000
 }
@@ -219,17 +231,17 @@ For the "Upload Knowledge Base File" request:
 
 If you encounter database-related errors:
 1. Ensure PostgreSQL is running
-2. Verify the test database exists
+2. Verify the production database exists
 3. Run the database setup script:
    ```bash
-   npm run setup:test-db
+   npm run seed:production
    ```
 
 ### Server Issues
 
 If the server is not responding:
 1. Check if the NestJS application is running
-2. Verify the port (default: 3001)
+2. Verify the port (default: 3000)
 3. Check the application logs for errors
 
 ## API Documentation
@@ -246,4 +258,4 @@ If you encounter any issues with the Postman collection:
 
 ---
 
-**Note**: This collection is designed for testing and development purposes. For production use, ensure proper security measures and environment configurations are in place.
+**Note**: This collection is configured for production environment testing with real production data. Use appropriate caution when performing destructive operations (DELETE, PATCH) on production data.

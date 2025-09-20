@@ -6,19 +6,12 @@
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"auth": {
-		"type": "bearer",
-		"bearer": [
-			{
-				"key": "token",
-				"value": "{{jwt_token}}",
-				"type": "string"
-			}
-		]
+		"type": "noauth"
 	},
-	"variable": [
+		"variable": [
 		{
 			"key": "base_url",
-			"value": "http://localhost:3001",
+			"value": "http://localhost:3000",
 			"type": "string"
 		},
 		{
@@ -38,7 +31,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"admin@test.com\",\n  \"password\": \"secret\"\n}",
+							"raw": "{\n  \"email\": \"admin@prod.com\",\n  \"password\": \"password\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -71,6 +64,7 @@
 									"    const jsonData = pm.response.json();",
 									"    pm.expect(jsonData).to.have.property('access_token');",
 									"    pm.globals.set(\"jwt_token\", jsonData.access_token);",
+									"    console.log(\"JWT Token set:\", jsonData.access_token.substring(0, 50) + \"...\");",
 									"});"
 								],
 								"type": "text/javascript"
@@ -85,7 +79,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"john.doe@test.com\",\n  \"password\": \"secret\"\n}",
+							"raw": "{\n  \"email\": \"demo.user@prod.com\",\n  \"password\": \"password\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -118,6 +112,7 @@
 									"    const jsonData = pm.response.json();",
 									"    pm.expect(jsonData).to.have.property('access_token');",
 									"    pm.globals.set(\"jwt_token\", jsonData.access_token);",
+									"    console.log(\"JWT Token set:\", jsonData.access_token.substring(0, 50) + \"...\");",
 									"});"
 								],
 								"type": "text/javascript"
@@ -175,7 +170,13 @@
 					"name": "Get All Users",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{base_url}}/users",
 							"host": [
@@ -187,13 +188,34 @@
 						},
 						"description": "Retrieve all users (requires admin privileges)"
 					},
-					"response": []
+					"response": [],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.globals.get(\"jwt_token\")) {",
+									"    console.log(\"No JWT token found! Please login first.\");",
+									"} else {",
+									"    console.log(\"Using JWT token:\", pm.globals.get(\"jwt_token\").substring(0, 50) + \"...\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
 				},
 				{
 					"name": "Get User by ID",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{base_url}}/users/1",
 							"host": [
@@ -206,13 +228,34 @@
 						},
 						"description": "Get specific user by ID"
 					},
-					"response": []
+					"response": [],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.globals.get(\"jwt_token\")) {",
+									"    console.log(\"No JWT token found! Please login first.\");",
+									"} else {",
+									"    console.log(\"Using JWT token:\", pm.globals.get(\"jwt_token\").substring(0, 50) + \"...\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
 				},
 				{
 					"name": "Create New User",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n  \"email\": \"newuser@test.com\",\n  \"password\": \"secret\",\n  \"role\": \"user\"\n}",
@@ -233,13 +276,34 @@
 						},
 						"description": "Create a new user"
 					},
-					"response": []
+					"response": [],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.globals.get(\"jwt_token\")) {",
+									"    console.log(\"No JWT token found! Please login first.\");",
+									"} else {",
+									"    console.log(\"Using JWT token:\", pm.globals.get(\"jwt_token\").substring(0, 50) + \"...\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
 				},
 				{
 					"name": "Update User Email",
 					"request": {
 						"method": "PATCH",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n  \"email\": \"updated.email@test.com\"\n}",
@@ -262,13 +326,34 @@
 						},
 						"description": "Update user's email address"
 					},
-					"response": []
+					"response": [],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.globals.get(\"jwt_token\")) {",
+									"    console.log(\"No JWT token found! Please login first.\");",
+									"} else {",
+									"    console.log(\"Using JWT token:\", pm.globals.get(\"jwt_token\").substring(0, 50) + \"...\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
 				},
 				{
 					"name": "Delete User",
 					"request": {
 						"method": "DELETE",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{base_url}}/users/1",
 							"host": [
@@ -281,13 +366,34 @@
 						},
 						"description": "Delete a user (cascades to policies and claims)"
 					},
-					"response": []
+					"response": [],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.globals.get(\"jwt_token\")) {",
+									"    console.log(\"No JWT token found! Please login first.\");",
+									"} else {",
+									"    console.log(\"Using JWT token:\", pm.globals.get(\"jwt_token\").substring(0, 50) + \"...\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
 				},
 				{
 					"name": "Get User Statistics",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{base_url}}/users/statistics",
 							"host": [
@@ -300,7 +406,22 @@
 						},
 						"description": "Get user statistics and analytics"
 					},
-					"response": []
+					"response": [],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.globals.get(\"jwt_token\")) {",
+									"    console.log(\"No JWT token found! Please login first.\");",
+									"} else {",
+									"    console.log(\"Using JWT token:\", pm.globals.get(\"jwt_token\").substring(0, 50) + \"...\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
 				}
 			]
 		},
@@ -311,10 +432,16 @@
 					"name": "Create Gold Policy",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"user_id\": \"1\",\n  \"plan_name\": \"Gold\",\n  \"collision_coverage\": 300000,\n  \"roadside_assistance\": true,\n  \"deductible\": 500,\n  \"premium\": 2500\n}",
+							"raw": "{\n  \"user_id\": \"1881ad29-6b67-49f8-b45d-378a67615e88\",\n  \"plan_name\": \"Gold\",\n  \"collision_coverage\": 300000,\n  \"roadside_assistance\": true,\n  \"deductible\": 500,\n  \"premium\": 2500\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -332,16 +459,37 @@
 						},
 						"description": "Create a new Gold insurance policy"
 					},
-					"response": []
+					"response": [],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.globals.get(\"jwt_token\")) {",
+									"    console.log(\"No JWT token found! Please login first.\");",
+									"} else {",
+									"    console.log(\"Using JWT token:\", pm.globals.get(\"jwt_token\").substring(0, 50) + \"...\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
 				},
 				{
 					"name": "Create Silver Policy",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"user_id\": \"1\",\n  \"plan_name\": \"Silver\",\n  \"collision_coverage\": 125000,\n  \"roadside_assistance\": false,\n  \"deductible\": 1000,\n  \"premium\": 1200\n}",
+							"raw": "{\n  \"user_id\": \"1881ad29-6b67-49f8-b45d-378a67615e88\",\n  \"plan_name\": \"Silver\",\n  \"collision_coverage\": 125000,\n  \"roadside_assistance\": false,\n  \"deductible\": 1000,\n  \"premium\": 1200\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -359,52 +507,115 @@
 						},
 						"description": "Create a new Silver insurance policy"
 					},
-					"response": []
+					"response": [],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.globals.get(\"jwt_token\")) {",
+									"    console.log(\"No JWT token found! Please login first.\");",
+									"} else {",
+									"    console.log(\"Using JWT token:\", pm.globals.get(\"jwt_token\").substring(0, 50) + \"...\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
 				},
 				{
 					"name": "Get Policy by ID",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "{{base_url}}/policies/GOLD-001",
+							"raw": "{{base_url}}/policies/GOLD-P001",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"policies",
-								"GOLD-001"
+								"GOLD-P001"
 							]
 						},
 						"description": "Get specific policy by ID"
 					},
-					"response": []
+					"response": [],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.globals.get(\"jwt_token\")) {",
+									"    console.log(\"No JWT token found! Please login first.\");",
+									"} else {",
+									"    console.log(\"Using JWT token:\", pm.globals.get(\"jwt_token\").substring(0, 50) + \"...\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
 				},
 				{
 					"name": "Get Policies by User",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "{{base_url}}/policies/user/1",
+							"raw": "{{base_url}}/policies/user/1881ad29-6b67-49f8-b45d-378a67615e88",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"policies",
 								"user",
-								"1"
+								"1881ad29-6b67-49f8-b45d-378a67615e88"
 							]
 						},
 						"description": "Get all policies for a specific user"
 					},
-					"response": []
+					"response": [],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.globals.get(\"jwt_token\")) {",
+									"    console.log(\"No JWT token found! Please login first.\");",
+									"} else {",
+									"    console.log(\"Using JWT token:\", pm.globals.get(\"jwt_token\").substring(0, 50) + \"...\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
 				},
 				{
 					"name": "Update Policy",
 					"request": {
 						"method": "PATCH",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n  \"collision_coverage\": 350000,\n  \"premium\": 2800\n}",
@@ -415,37 +626,73 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/policies/GOLD-001",
+							"raw": "{{base_url}}/policies/GOLD-P001",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"policies",
-								"GOLD-001"
+								"GOLD-P001"
 							]
 						},
 						"description": "Update policy details"
 					},
-					"response": []
+					"response": [],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.globals.get(\"jwt_token\")) {",
+									"    console.log(\"No JWT token found! Please login first.\");",
+									"} else {",
+									"    console.log(\"Using JWT token:\", pm.globals.get(\"jwt_token\").substring(0, 50) + \"...\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
 				},
 				{
 					"name": "Delete Policy",
 					"request": {
 						"method": "DELETE",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "{{base_url}}/policies/GOLD-001",
+							"raw": "{{base_url}}/policies/SILVER-P013",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"policies",
-								"GOLD-001"
+								"SILVER-P013"
 							]
 						},
 						"description": "Cancel/delete a policy"
 					},
-					"response": []
+					"response": [],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.globals.get(\"jwt_token\")) {",
+									"    console.log(\"No JWT token found! Please login first.\");",
+									"} else {",
+									"    console.log(\"Using JWT token:\", pm.globals.get(\"jwt_token\").substring(0, 50) + \"...\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
 				}
 			]
 		},
@@ -456,10 +703,16 @@
 					"name": "Create New Claim",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"policyId\": \"GOLD-001\",\n  \"description\": \"Car accident on highway - rear-ended by another vehicle\",\n  \"vehicle\": \"Toyota Camry 2020, License: ABC123\",\n  \"photos\": [\"photo1.jpg\", \"photo2.jpg\", \"damage_report.pdf\"]\n}",
+							"raw": "{\n  \"policyId\": \"GOLD-P001\",\n  \"description\": \"Car accident on highway - rear-ended by another vehicle\",\n  \"vehicle\": \"Toyota Camry 2020, License: ABC123\",\n  \"photos\": [\"photo1.jpg\", \"photo2.jpg\", \"damage_report.pdf\"]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -477,32 +730,74 @@
 						},
 						"description": "Create a new insurance claim"
 					},
-					"response": []
+					"response": [],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.globals.get(\"jwt_token\")) {",
+									"    console.log(\"No JWT token found! Please login first.\");",
+									"} else {",
+									"    console.log(\"Using JWT token:\", pm.globals.get(\"jwt_token\").substring(0, 50) + \"...\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
 				},
 				{
 					"name": "Get Claim by ID",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "{{base_url}}/claims/CLM-001",
+							"raw": "{{base_url}}/claims/CLM-P001",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"claims",
-								"CLM-001"
+								"CLM-P001"
 							]
 						},
 						"description": "Get specific claim by ID"
 					},
-					"response": []
+					"response": [],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.globals.get(\"jwt_token\")) {",
+									"    console.log(\"No JWT token found! Please login first.\");",
+									"} else {",
+									"    console.log(\"Using JWT token:\", pm.globals.get(\"jwt_token\").substring(0, 50) + \"...\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
 				},
 				{
 					"name": "Get All Claims",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{base_url}}/claims",
 							"host": [
@@ -514,15 +809,36 @@
 						},
 						"description": "Get all claims (admin access)"
 					},
-					"response": []
+					"response": [],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.globals.get(\"jwt_token\")) {",
+									"    console.log(\"No JWT token found! Please login first.\");",
+									"} else {",
+									"    console.log(\"Using JWT token:\", pm.globals.get(\"jwt_token\").substring(0, 50) + \"...\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
 				},
 				{
 					"name": "Get Claims by Policy",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "{{base_url}}/claims?policyId=GOLD-001",
+							"raw": "{{base_url}}/claims?policyId=GOLD-P001",
 							"host": [
 								"{{base_url}}"
 							],
@@ -532,22 +848,43 @@
 							"query": [
 								{
 									"key": "policyId",
-									"value": "GOLD-001"
+									"value": "GOLD-P001"
 								}
 							]
 						},
 						"description": "Get claims filtered by policy ID"
 					},
-					"response": []
+					"response": [],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.globals.get(\"jwt_token\")) {",
+									"    console.log(\"No JWT token found! Please login first.\");",
+									"} else {",
+									"    console.log(\"Using JWT token:\", pm.globals.get(\"jwt_token\").substring(0, 50) + \"...\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
 				},
 				{
 					"name": "Update Claim Status",
 					"request": {
 						"method": "PATCH",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"newStatus\": \"Under Review\"\n}",
+							"raw": "{\n  \"newStatus\": \"In Review\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -555,38 +892,74 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/claims/CLM-001/status",
+							"raw": "{{base_url}}/claims/CLM-P003/status",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"claims",
-								"CLM-001",
+								"CLM-P003",
 								"status"
 							]
 						},
 						"description": "Update claim status"
 					},
-					"response": []
+					"response": [],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.globals.get(\"jwt_token\")) {",
+									"    console.log(\"No JWT token found! Please login first.\");",
+									"} else {",
+									"    console.log(\"Using JWT token:\", pm.globals.get(\"jwt_token\").substring(0, 50) + \"...\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
 				},
 				{
 					"name": "Delete Claim",
 					"request": {
 						"method": "DELETE",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "{{base_url}}/claims/CLM-001",
+							"raw": "{{base_url}}/claims/CLM-P029",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"claims",
-								"CLM-001"
+								"CLM-P029"
 							]
 						},
 						"description": "Delete a claim"
 					},
-					"response": []
+					"response": [],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.globals.get(\"jwt_token\")) {",
+									"    console.log(\"No JWT token found! Please login first.\");",
+									"} else {",
+									"    console.log(\"Using JWT token:\", pm.globals.get(\"jwt_token\").substring(0, 50) + \"...\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
 				}
 			]
 		},
@@ -597,10 +970,16 @@
 					"name": "Calculate Premium",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"policy_id\": \"GOLD-001\",\n  \"previous_coverage\": 250000,\n  \"new_coverage\": 350000\n}",
+							"raw": "{\n  \"policy_id\": \"GOLD-P001\",\n  \"previous_coverage\": 250000,\n  \"new_coverage\": 350000\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -619,26 +998,62 @@
 						},
 						"description": "Calculate premium based on coverage changes"
 					},
-					"response": []
+					"response": [],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.globals.get(\"jwt_token\")) {",
+									"    console.log(\"No JWT token found! Please login first.\");",
+									"} else {",
+									"    console.log(\"Using JWT token:\", pm.globals.get(\"jwt_token\").substring(0, 50) + \"...\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
 				},
 				{
 					"name": "Get Premium History",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "{{base_url}}/premium/GOLD-001",
+							"raw": "{{base_url}}/premium/GOLD-P001",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"premium",
-								"GOLD-001"
+								"GOLD-P001"
 							]
 						},
 						"description": "Get premium history for a specific policy"
 					},
-					"response": []
+					"response": [],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.globals.get(\"jwt_token\")) {",
+									"    console.log(\"No JWT token found! Please login first.\");",
+									"} else {",
+									"    console.log(\"Using JWT token:\", pm.globals.get(\"jwt_token\").substring(0, 50) + \"...\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
 				}
 			]
 		},
@@ -708,7 +1123,13 @@
 					"name": "Upload Knowledge Base File",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "formdata",
 							"formdata": [
@@ -731,13 +1152,34 @@
 						},
 						"description": "Upload a file to the knowledge base"
 					},
-					"response": []
+					"response": [],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.globals.get(\"jwt_token\")) {",
+									"    console.log(\"No JWT token found! Please login first.\");",
+									"} else {",
+									"    console.log(\"Using JWT token:\", pm.globals.get(\"jwt_token\").substring(0, 50) + \"...\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
 				},
 				{
 					"name": "Delete Knowledge Base Entry",
 					"request": {
 						"method": "DELETE",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{base_url}}/admin/kb/test-kb-001",
 							"host": [
@@ -751,7 +1193,22 @@
 						},
 						"description": "Delete a specific knowledge base entry"
 					},
-					"response": []
+					"response": [],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.globals.get(\"jwt_token\")) {",
+									"    console.log(\"No JWT token found! Please login first.\");",
+									"} else {",
+									"    console.log(\"Using JWT token:\", pm.globals.get(\"jwt_token\").substring(0, 50) + \"...\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
 				}
 			]
 		},
@@ -762,40 +1219,82 @@
 					"name": "Get User Claim History",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "{{base_url}}/claim-history/user/1",
+							"raw": "{{base_url}}/claim-history/user/1881ad29-6b67-49f8-b45d-378a67615e88",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"claim-history",
 								"user",
-								"1"
+								"1881ad29-6b67-49f8-b45d-378a67615e88"
 							]
 						},
 						"description": "Get complete claim history for a user across all policies"
 					},
-					"response": []
+					"response": [],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.globals.get(\"jwt_token\")) {",
+									"    console.log(\"No JWT token found! Please login first.\");",
+									"} else {",
+									"    console.log(\"Using JWT token:\", pm.globals.get(\"jwt_token\").substring(0, 50) + \"...\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
 				},
 				{
 					"name": "Get Claim Details",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "{{base_url}}/claim-history/CLM-001",
+							"raw": "{{base_url}}/claim-history/CLM-P001",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"claim-history",
-								"CLM-001"
+								"CLM-P001"
 							]
 						},
 						"description": "Get detailed information for a specific claim including history"
 					},
-					"response": []
+					"response": [],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.globals.get(\"jwt_token\")) {",
+									"    console.log(\"No JWT token found! Please login first.\");",
+									"} else {",
+									"    console.log(\"Using JWT token:\", pm.globals.get(\"jwt_token\").substring(0, 50) + \"...\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
 				}
 			]
 		},
