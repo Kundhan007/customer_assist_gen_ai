@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Patch,
-  Delete,
   Param,
   Body,
   Query,
@@ -14,7 +13,6 @@ import {
 import { ClaimsService } from '../claims/claims.service';
 import { PoliciesService } from '../policies/policies.service';
 import { PremiumService } from '../premium/premium.service';
-import { ClaimHistoryService } from '../claim-history/claim-history.service';
 import { ChatService } from '../chat/chat.service';
 import { UsersService } from '../users/users.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -41,7 +39,6 @@ export class UserController {
     private readonly claimsService: ClaimsService,
     private readonly policiesService: PoliciesService,
     private readonly premiumService: PremiumService,
-    private readonly claimHistoryService: ClaimHistoryService,
     private readonly chatService: ChatService,
     private readonly usersService: UsersService,
   ) {}
@@ -119,16 +116,6 @@ export class UserController {
     return claim;
   }
 
-  @Get('claims/:id/history')
-  async getClaimHistoryById(@Request() req: RequestWithUser, @Param('id') id: string) {
-    // Check if user owns this claim
-    const userClaims = await this.claimsService.getClaimsByUserId(req.user.userId);
-    const userClaimIds = userClaims.map(c => c.claim_id);
-    if (!userClaimIds.includes(id)) {
-      throw new NotFoundException('Claim not found or access denied');
-    }
-    return this.claimHistoryService.getDetailedClaimHistory(id);
-  }
 
   // Premium Management (User sees only their premium data)
   @Post('premium/calculate')
@@ -140,21 +127,6 @@ export class UserController {
     );
   }
 
-  @Get('premium/history')
-  async getUserPremiumHistory(@Request() req: RequestWithUser) {
-    // This will need to be implemented to get user's premium history
-    return this.premiumService.getPremiumHistory(req.user.userId);
-  }
-
-  @Get('premium/policy/:policyId')
-  async getUserPolicyPremiumHistory(@Request() req: RequestWithUser, @Param('policyId') policyId: string) {
-    // Add check to ensure user owns this policy
-    const policy = await this.policiesService.findOne(policyId);
-    if (!policy || policy.user_id !== req.user.userId) {
-      throw new NotFoundException('Policy not found or access denied');
-    }
-    return this.premiumService.getPremiumHistory(policyId);
-  }
 
   // Chat Functionality
   @Post('chat')
@@ -165,32 +137,4 @@ export class UserController {
     );
   }
 
-  @Get('chat/history')
-  async getChatHistory(@Request() req: RequestWithUser) {
-    // This will need to be implemented to get user's chat history
-    return [];
-  }
-
-  @Get('chat/history/:sessionId')
-  async getChatSession(@Request() req: RequestWithUser, @Param('sessionId') sessionId: string) {
-    // This will need to be implemented to get specific chat session
-    return {};
-  }
-
-  // Claim History (Auto-scoped to user)
-  @Get('claim-history')
-  async getUserClaimHistory(@Request() req: RequestWithUser) {
-    return this.claimHistoryService.getClaimHistoryByUserId(req.user.userId);
-  }
-
-  @Get('claim-history/claim/:claimId')
-  async getUserClaimHistoryByClaimId(@Request() req: RequestWithUser, @Param('claimId') claimId: string) {
-    // Check if user owns this claim
-    const userClaims = await this.claimsService.getClaimsByUserId(req.user.userId);
-    const userClaimIds = userClaims.map(c => c.claim_id);
-    if (!userClaimIds.includes(claimId)) {
-      throw new NotFoundException('Claim not found or access denied');
-    }
-    return this.claimHistoryService.getDetailedClaimHistory(claimId);
-  }
 }
