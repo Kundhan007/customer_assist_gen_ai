@@ -3,6 +3,7 @@ import { ChatService } from './chat.service';
 import { ChatController } from './chat.controller';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { OrchestratorModule } from './orchestrator/orchestrator.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       }),
       inject: [ConfigService],
     }),
+    OrchestratorModule,
   ],
   controllers: [ChatController],
   providers: [ChatService],
