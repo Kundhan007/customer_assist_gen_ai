@@ -1,0 +1,844 @@
+{
+	"info": {
+		"_postman_id": "c7f8d9e0-1a2b-3c4d-5e6f-789012345678",
+		"name": "Customer Assist Gen AI API",
+		"description": "Postman collection for testing the Customer Assist Gen AI application with real data",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{jwt_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3001",
+			"type": "string"
+		},
+		{
+			"key": "jwt_token",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login - Admin User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@test.com\",\n  \"password\": \"secret\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login as admin user to get JWT token"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has access_token\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('access_token');",
+									"    pm.globals.set(\"jwt_token\", jsonData.access_token);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Login - Regular User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"john.doe@test.com\",\n  \"password\": \"secret\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login as regular user to get JWT token"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has access_token\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('access_token');",
+									"    pm.globals.set(\"jwt_token\", jsonData.access_token);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Login - Invalid Credentials",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"invalid@test.com\",\n  \"password\": \"wrongpassword\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Test login with invalid credentials"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {",
+									"    pm.response.to.have.status(401);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "Retrieve all users (requires admin privileges)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"1"
+							]
+						},
+						"description": "Get specific user by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create New User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"newuser@test.com\",\n  \"password\": \"secret\",\n  \"role\": \"user\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "Create a new user"
+					},
+					"response": []
+				},
+				{
+					"name": "Update User Email",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"updated.email@test.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/users/1/email",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"1",
+								"email"
+							]
+						},
+						"description": "Update user's email address"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"1"
+							]
+						},
+						"description": "Delete a user (cascades to policies and claims)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Statistics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/statistics",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"statistics"
+							]
+						},
+						"description": "Get user statistics and analytics"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Policies",
+			"item": [
+				{
+					"name": "Create Gold Policy",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user_id\": \"1\",\n  \"plan_name\": \"Gold\",\n  \"collision_coverage\": 300000,\n  \"roadside_assistance\": true,\n  \"deductible\": 500,\n  \"premium\": 2500\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/policies",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"policies"
+							]
+						},
+						"description": "Create a new Gold insurance policy"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Silver Policy",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user_id\": \"1\",\n  \"plan_name\": \"Silver\",\n  \"collision_coverage\": 125000,\n  \"roadside_assistance\": false,\n  \"deductible\": 1000,\n  \"premium\": 1200\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/policies",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"policies"
+							]
+						},
+						"description": "Create a new Silver insurance policy"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Policy by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/policies/GOLD-001",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"policies",
+								"GOLD-001"
+							]
+						},
+						"description": "Get specific policy by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Policies by User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/policies/user/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"policies",
+								"user",
+								"1"
+							]
+						},
+						"description": "Get all policies for a specific user"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Policy",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"collision_coverage\": 350000,\n  \"premium\": 2800\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/policies/GOLD-001",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"policies",
+								"GOLD-001"
+							]
+						},
+						"description": "Update policy details"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Policy",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/policies/GOLD-001",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"policies",
+								"GOLD-001"
+							]
+						},
+						"description": "Cancel/delete a policy"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Claims",
+			"item": [
+				{
+					"name": "Create New Claim",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"policyId\": \"GOLD-001\",\n  \"description\": \"Car accident on highway - rear-ended by another vehicle\",\n  \"vehicle\": \"Toyota Camry 2020, License: ABC123\",\n  \"photos\": [\"photo1.jpg\", \"photo2.jpg\", \"damage_report.pdf\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/claims",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"claims"
+							]
+						},
+						"description": "Create a new insurance claim"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Claim by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/claims/CLM-001",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"claims",
+								"CLM-001"
+							]
+						},
+						"description": "Get specific claim by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Claims",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/claims",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"claims"
+							]
+						},
+						"description": "Get all claims (admin access)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Claims by Policy",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/claims?policyId=GOLD-001",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"claims"
+							],
+							"query": [
+								{
+									"key": "policyId",
+									"value": "GOLD-001"
+								}
+							]
+						},
+						"description": "Get claims filtered by policy ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Claim Status",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"newStatus\": \"Under Review\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/claims/CLM-001/status",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"claims",
+								"CLM-001",
+								"status"
+							]
+						},
+						"description": "Update claim status"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Claim",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/claims/CLM-001",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"claims",
+								"CLM-001"
+							]
+						},
+						"description": "Delete a claim"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Premium",
+			"item": [
+				{
+					"name": "Calculate Premium",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"policy_id\": \"GOLD-001\",\n  \"previous_coverage\": 250000,\n  \"new_coverage\": 350000\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/premium/calc",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"premium",
+								"calc"
+							]
+						},
+						"description": "Calculate premium based on coverage changes"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Premium History",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/premium/GOLD-001",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"premium",
+								"GOLD-001"
+							]
+						},
+						"description": "Get premium history for a specific policy"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Chat",
+			"item": [
+				{
+					"name": "Send Chat Message",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"message\": \"What is covered in my Gold policy?\",\n  \"sessionId\": \"session-123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/chat",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chat"
+							]
+						},
+						"description": "Send a message to the chat service"
+					},
+					"response": []
+				},
+				{
+					"name": "Send Chat Message - New Session",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"message\": \"How do I file a claim?\",\n  \"sessionId\": \"new-session-456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/chat",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chat"
+							]
+						},
+						"description": "Start a new chat session"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Admin",
+			"item": [
+				{
+					"name": "Upload Knowledge Base File",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/path/to/your/knowledge-base-file.pdf"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/admin/kb",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"kb"
+							]
+						},
+						"description": "Upload a file to the knowledge base"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Knowledge Base Entry",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/kb/test-kb-001",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"kb",
+								"test-kb-001"
+							]
+						},
+						"description": "Delete a specific knowledge base entry"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Claim History",
+			"item": [
+				{
+					"name": "Get User Claim History",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/claim-history/user/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"claim-history",
+								"user",
+								"1"
+							]
+						},
+						"description": "Get complete claim history for a user across all policies"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Claim Details",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/claim-history/CLM-001",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"claim-history",
+								"CLM-001"
+							]
+						},
+						"description": "Get detailed information for a specific claim including history"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "System",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"health"
+							]
+						},
+						"description": "Check system health status"
+					},
+					"response": []
+				},
+				{
+					"name": "API Info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								""
+							]
+						},
+						"description": "Get basic API information and available endpoints"
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
