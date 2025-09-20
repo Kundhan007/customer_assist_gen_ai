@@ -8,9 +8,11 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from api.models import (
     HealthResponse, VectorizationRequest, VectorizationResponse,
-    BatchVectorizationRequest, BatchVectorizationResponse, ModelInfoResponse
+    BatchVectorizationRequest, BatchVectorizationResponse, ModelInfoResponse,
+    ChatRequest, ChatResponse
 )
 from vectorization.text_vectorizer import TextVectorizer
+from orchestrator.langhub import run_agent
 
 # Global vectorizer instance
 vectorizer = None
@@ -153,6 +155,24 @@ async def vectorize_batch(request: BatchVectorizationRequest):
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Batch vectorization failed: {str(e)}")
+
+@app.post("/chat", response_model=ChatResponse)
+async def chat_with_agent(request: ChatRequest):
+    """
+    Chat with the LangChain agent which can use tools to interact with the NestJS backend.
+    """
+    try:
+        # Prepend user_id to the query for context if provided
+        full_query = f"User ID: {request.user_id}. Message: {request.message}" if request.user_id else request.message
+        
+        agent_response = await run_agent(full_query)
+        return ChatResponse(response=agent_response)
+    except ValueError as e: # Catch specific errors like missing API key
+        raise HTTPException(status_code=500, detail=f"Agent configuration error: {str(e)}")
+    except RuntimeError as e: # Catch agent initialization errors
+        raise HTTPException(status_code=503, detail=f"Agent service unavailable: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Chat processing failed: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn

@@ -1,7 +1,7 @@
 {
   "name": "customer-assist-gen-ai-backend",
   "version": "0.0.1",
-  "description": "Backend for Customer Assist Gen AI",
+  "description": "Backend for Customer Assist Gen AI with Python Orchestrator",
   "author": "Kundhan",
   "private": true,
   "license": "UNLICENSED",
@@ -29,7 +29,10 @@
     "db:stats": "ts-node src/database/seed/setup-production-vectors.ts --stats",
     "python:start": "cd .. && ./run_api.sh",
     "python:setup": "cd .. && ./setup_api.sh",
-    "python:test": "cd .. && ./test_run.sh"
+    "python:test": "cd .. && ./test_run.sh",
+    "orchestrator:start": "cd ../python-orchestrator && ./start_fastapi.sh",
+    "orchestrator:stop": "lsof -ti:2345 | xargs kill -9",
+    "dev:all": "concurrently \"npm run orchestrator:start\" \"npm run start:dev\""
   },
   "dependencies": {
     "@nestjs/axios": "^4.0.1",
@@ -68,6 +71,7 @@
     "@types/supertest": "^2.0.12",
     "@typescript-eslint/eslint-plugin": "^5.59.11",
     "@typescript-eslint/parser": "^5.59.11",
+    "concurrently": "^9.2.1",
     "eslint": "^9.0.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-prettier": "^4.2.1",
