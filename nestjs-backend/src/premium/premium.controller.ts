@@ -4,6 +4,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { PoliciesService } from '../policies/policies.service';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 
 interface RequestWithUser {
   user: {
@@ -13,6 +14,7 @@ interface RequestWithUser {
   };
 }
 
+@ApiTags('Premium')
 @Controller('premium')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class PremiumController {
@@ -23,6 +25,13 @@ export class PremiumController {
 
   @Get(':policyId')
   @Roles('user', 'admin')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get premium history for policy' })
+  @ApiResponse({ status: 200, description: 'Premium history retrieved successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'Policy not found' })
+  @ApiParam({ name: 'policyId', description: 'Policy ID', example: 'GOLD-P001' })
   async getPremiumHistory(@Param('policyId') policyId: string, @Request() req: RequestWithUser) {
     // Check if user owns this policy (for regular users)
     if (req.user.role === 'user') {

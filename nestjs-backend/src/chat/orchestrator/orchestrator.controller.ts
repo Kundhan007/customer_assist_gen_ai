@@ -1,7 +1,16 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
+import { OrchestratorService } from './orchestrator.service';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
+@ApiTags('orchestrator')
 @Controller('orchestrator')
 export class OrchestratorController {
-  // This controller is kept for module structure but has no endpoints
-  // as per the lean system requirements
+  constructor(private readonly orchestratorService: OrchestratorService) {}
+
+  @Get('status')
+  @ApiOperation({ summary: 'Get orchestrator service status' })
+  @ApiResponse({ status: 200, description: 'Orchestrator status retrieved successfully' })
+  getStatus() {
+    return this.orchestratorService.getOrchestratorStatus();
+  }
 }

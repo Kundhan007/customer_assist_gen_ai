@@ -42,13 +42,18 @@ export class OrchestratorService implements OnModuleInit {
 
   async forwardToOrchestrator(message: string, sessionId?: string, userRole: string = 'user', request?: Request): Promise<any> {
     if (!this.isReady) {
-      this.logger.warn('Orchestrator is not ready, returning mock response');
-      return {
-        response: `I apologize, but the orchestrator service is currently unavailable. Please try again later.`,
-        sessionId: sessionId || 'error-session-' + Date.now(),
-        timestamp: new Date().toISOString(),
-        error: true
-      };
+      this.logger.warn('Orchestrator is not ready, checking health again...');
+      await this.checkOrchestratorHealth();
+      
+      if (!this.isReady) {
+        this.logger.warn('Orchestrator is still not ready, returning mock response');
+        return {
+          response: `I apologize, but the orchestrator service is currently unavailable. Please try again later.`,
+          sessionId: sessionId || 'error-session-' + Date.now(),
+          timestamp: new Date().toISOString(),
+          error: true
+        };
+      }
     }
 
     try {

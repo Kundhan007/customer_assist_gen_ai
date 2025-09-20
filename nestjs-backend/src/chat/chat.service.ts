@@ -7,10 +7,17 @@ export class ChatService {
 
   constructor(private readonly orchestratorService: OrchestratorService) {}
 
-  async forwardToOrchestrator(message: string, sessionId?: string, userRole: string = 'user') {
+  async forwardToOrchestrator(message: string, sessionId?: string, userRole: string = 'user', request?: any) {
     try {
-      // Check if we're in test environment and return mock response
-      if (process.env.NODE_ENV === 'test') {
+      // Log the environment for debugging
+      this.logger.log(`NODE_ENV: ${process.env.NODE_ENV}`);
+      
+      // Check if we're in actual test mode (running Jest tests) vs development
+      // Only return mock response if we're actually running tests, not just NODE_ENV=test
+      const isActualTest = process.env.NODE_ENV === 'test' && process.env.JEST_WORKER_ID !== undefined;
+      
+      if (isActualTest) {
+        this.logger.log('Returning mock response because we are running actual tests');
         return {
           response: `Mock response to: "${message}"`,
           sessionId: sessionId || 'test-session-' + Date.now(),
@@ -18,8 +25,9 @@ export class ChatService {
         };
       }
 
+      this.logger.log('Forwarding to real orchestrator service');
       // Use the orchestrator service to forward the message
-      return await this.orchestratorService.forwardToOrchestrator(message, sessionId, userRole);
+      return await this.orchestratorService.forwardToOrchestrator(message, sessionId, userRole, request);
     } catch (error) {
       this.logger.error('Error forwarding to orchestrator:', error);
       return {

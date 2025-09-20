@@ -3,6 +3,7 @@ import { PoliciesService } from './policies.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 
 interface RequestWithUser {
   user: {
@@ -12,6 +13,7 @@ interface RequestWithUser {
   };
 }
 
+@ApiTags('Policies')
 @Controller('policies')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class PoliciesController {
@@ -19,6 +21,13 @@ export class PoliciesController {
 
   @Get(':id')
   @Roles('user', 'admin')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get policy by ID' })
+  @ApiResponse({ status: 200, description: 'Policy found' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'Policy not found' })
+  @ApiParam({ name: 'id', description: 'Policy ID', example: 'GOLD-P001' })
   async findOne(@Param('id') id: string, @Request() req: RequestWithUser) {
     const policy = await this.policiesService.findOne(id);
     if (!policy) {
