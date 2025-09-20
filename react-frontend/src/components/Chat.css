@@ -1,0 +1,137 @@
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  max-width: 800px;
+  margin: auto;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.chat-messages {
+  width: 100%;
+  height: 400px;
+  overflow-y: auto;
+  padding: 10px;
+  margin-bottom: 15px;
+  background-color: #f7f7f7;
+  border-radius: 6px;
+}
+
+.chat-message {
+  margin-bottom: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  max-width: 70%;
+  word-wrap: break-word;
+}
+
+.chat-message.user {
+  background: #ffffff;
+  border: 1px solid #ddd;
+  align-self: flex-end;
+}
+
+.chat-message.system {
+  background: #e8f4fd;
+  border: 1px solid #cce7fa;
+  align-self: flex-start;
+}
+
+.policy-card-message,
+.claim-status-message,
+.confirm-action-message {
+  background: #f0faff;
+  border: 1px solid #cce7fa;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.chat-input-area {
+  display: flex;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.chat-input-area input {
+  flex-grow: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px 0 0 4px;
+  font-size: 16px;
+}
+
+.chat-input-area button {
+  padding: 10px 15px;
+  border: 1px solid #007bff;
+  background-color: #007bff;
+  color: white;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.chat-input-area button:hover {
+  background-color: #0056b3;
+}
+
+.stub-components {
+  width: 100%;
+  border-top: 1px solid #ccc;
+  padding-top: 20px;
+}
+
+.stub-components > div {
+  margin-bottom: 20px;
+  padding: 15px;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  background-color: #fff;
+}
+
+.policy-card h3,
+.claim-status-table h3,
+.confirm-action h3 {
+  margin-top: 0;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.claim-status-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.claim-status-table th, .claim-status-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.claim-status-table th {
+  background-color: #f2f2f2;
+}
+
+.confirm-action button {
+  margin-right: 10px;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.confirm-action button:first-of-type {
+  background-color: #28a745;
+  color: white;
+  border-color: #28a745;
+}
+
+.confirm-action button:last-of-type {
+  background-color: #dc3545;
+  color: white;
+  border-color: #dc3545;
+}

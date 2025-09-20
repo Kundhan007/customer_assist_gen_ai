@@ -17,9 +17,17 @@
 
 **Quick Start:**
 ```bash
-./intiation/docker/start-docker.sh
+# To start the database and backend services
+./deployment/docker/start_docker.sh
+
+# To start the React frontend (in a new terminal)
+# On Windows:
+run_frontend.bat
+# On Linux/macOS (or if you have Git Bash/WSL on Windows):
+./run_frontend.sh
 ```
 
 Access:
 - DB: localhost:5432
 - Adminer: http://localhost:8080
+- Frontend: http://localhost:3000 (after running the script)
