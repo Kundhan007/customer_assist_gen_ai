@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Param, Body, UploadedFile, UseInterceptors, UseGuards, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Param, Body, Query, UploadedFile, UseInterceptors, UseGuards, NotFoundException } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -76,9 +76,17 @@ export class AdminController {
     return policy;
   }
 
+  @Delete('policies/:id')
+  async deletePolicy(@Param('id') id: string) {
+    return this.policiesService.remove(id);
+  }
+
   // Claims Management (Any claim in system)
   @Get('claims')
-  async getAllClaims() {
+  async getAllClaims(@Param() params: any, @Query() query: any) {
+    if (query.policyId) {
+      return this.claimsService.getClaimsByPolicy(query.policyId);
+    }
     return this.claimsService.getAllClaims();
   }
 
