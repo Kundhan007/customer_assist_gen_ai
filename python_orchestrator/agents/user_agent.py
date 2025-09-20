@@ -9,12 +9,13 @@ logger = logging.getLogger(__name__)
 # Get NestJS backend URL from environment variables
 NESTJS_BACKEND_URL = os.getenv("NESTJS_BACKEND_URL", "http://localhost:3001")
 
-async def get_user_by_id(user_id: str) -> Dict[str, Any]:
+async def get_user_by_id(user_id: str, auth_token: str = None) -> Dict[str, Any]:
     """
     Retrieve user details by their UUID from the NestJS backend.
 
     Args:
         user_id (str): The UUID of the user.
+        auth_token (str, optional): JWT authentication token.
 
     Returns:
         Dict[str, Any]: A dictionary of user information.
@@ -23,9 +24,13 @@ async def get_user_by_id(user_id: str) -> Dict[str, Any]:
         ValueError: If the user is not found or an API error occurs.
     """
     url = f"{NESTJS_BACKEND_URL}/users/{user_id}"
+    headers = {}
+    if auth_token:
+        headers["Authorization"] = f"Bearer {auth_token}"
+    
     try:
         async with httpx.AsyncClient() as client:
-            response = await client.get(url)
+            response = await client.get(url, headers=headers)
             response.raise_for_status()  # Raises an exception for 4XX/5XX errors
             return response.json()
     except httpx.HTTPStatusError as e:
@@ -37,12 +42,13 @@ async def get_user_by_id(user_id: str) -> Dict[str, Any]:
         logger.error(f"Request error fetching user by ID {user_id}: {e}")
         raise ValueError(f"Could not connect to NestJS backend to fetch user by ID {user_id}.")
 
-async def get_user_by_email(email: str) -> Dict[str, Any]:
+async def get_user_by_email(email: str, auth_token: str = None) -> Dict[str, Any]:
     """
     Retrieve user details by their email address from the NestJS backend.
 
     Args:
         email (str): The email address of the user.
+        auth_token (str, optional): JWT authentication token.
 
     Returns:
         Dict[str, Any]: A dictionary of user information.
@@ -54,9 +60,13 @@ async def get_user_by_email(email: str) -> Dict[str, Any]:
     # For this example, let's assume a specific endpoint /users/email/{email}
     # If not, this might need to be adjusted based on actual NestJS routes.
     url = f"{NESTJS_BACKEND_URL}/users/email/{email}"
+    headers = {}
+    if auth_token:
+        headers["Authorization"] = f"Bearer {auth_token}"
+    
     try:
         async with httpx.AsyncClient() as client:
-            response = await client.get(url)
+            response = await client.get(url, headers=headers)
             response.raise_for_status()
             return response.json()
     except httpx.HTTPStatusError as e:

@@ -162,6 +162,11 @@ async def chat_with_agent(request: ChatRequest):
     Chat with the LangChain agent which can use tools to interact with the NestJS backend.
     """
     try:
+        # Set the authentication token for tools to use
+        if request.auth_token:
+            from orchestrator.tools import set_auth_token
+            set_auth_token(request.auth_token)
+        
         # Prepend user_id to the query for context if provided
         full_query = f"User ID: {request.user_id}. Message: {request.message}" if request.user_id else request.message
         

@@ -1,4 +1,5 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Request } from 'express';
 
 @Injectable()
 export class OrchestratorService implements OnModuleInit {
@@ -39,7 +40,7 @@ export class OrchestratorService implements OnModuleInit {
     return this.isReady;
   }
 
-  async forwardToOrchestrator(message: string, sessionId?: string, userRole: string = 'user'): Promise<any> {
+  async forwardToOrchestrator(message: string, sessionId?: string, userRole: string = 'user', request?: Request): Promise<any> {
     if (!this.isReady) {
       this.logger.warn('Orchestrator is not ready, returning mock response');
       return {
@@ -63,7 +64,8 @@ export class OrchestratorService implements OnModuleInit {
         message,
         sessionId,
         userRole,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        auth_token: this.extractAuthToken(request)
       };
 
       const response = await firstValueFrom(
@@ -93,5 +95,18 @@ export class OrchestratorService implements OnModuleInit {
       ready: this.isReady,
       url: this.orchestratorUrl
     };
+  }
+
+  private extractAuthToken(request?: Request): string | null {
+    if (!request) {
+      return null;
+    }
+    
+    const authHeader = request.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      return authHeader.substring(7);
+    }
+    
+    return null;
   }
 }
