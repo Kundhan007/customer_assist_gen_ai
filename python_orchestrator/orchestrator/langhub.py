@@ -1,7 +1,7 @@
 import os
 from langchain_openai import ChatOpenAI
 from langchain.agents import initialize_agent, AgentType
-from ..config import OPENAI_API_KEY
+from python_orchestrator.config import OPENAI_API_KEY
 from .tools import AGENT_TOOLS
 
 def get_orchestrator_agent(
