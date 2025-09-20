@@ -1,11 +1,16 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 
 @Injectable()
 export class OrchestratorService implements OnModuleInit {
   private readonly logger = new Logger(OrchestratorService.name);
   private isReady = false;
-  private readonly orchestratorUrl = 'http://localhost:2345';
+  private readonly orchestratorUrl: string;
+
+  constructor(private configService: ConfigService) {
+    this.orchestratorUrl = this.configService.get<string>('ORCHESTRATOR_URL') || 'http://localhost:2345';
+  }
 
   async onModuleInit() {
     // Check if Python orchestrator is already running
@@ -65,18 +70,37 @@ export class OrchestratorService implements OnModuleInit {
 
       const httpService = new HttpService();
 
+      const authToken = this.extractAuthToken(request);
       const payload = {
         message,
         sessionId,
         userRole,
         timestamp: new Date().toISOString(),
-        auth_token: this.extractAuthToken(request)
+        auth_token: authToken
       };
 
+      this.logger.log(`Sending payload to orchestrator: ${JSON.stringify({
+        message,
+        sessionId,
+        userRole,
+        timestamp: new Date().toISOString(),
+        auth_token: authToken ? 'present' : 'missing'
+      })}`);
+
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+
+      this.logger.log(`Making HTTP request to ${this.orchestratorUrl}/chat with headers: ${JSON.stringify(headers)}`);
+
       const response = await firstValueFrom(
-        httpService.post('http://localhost:2345/chat', payload).pipe(
+        httpService.post(`${this.orchestratorUrl}/chat`, payload, { headers }).pipe(
           catchError((error: any) => {
             this.logger.error('Orchestrator service error:', error.message);
+            if (error.response) {
+              this.logger.error('Error response data:', error.response.data);
+              this.logger.error('Error response status:', error.response.status);
+            }
             throw new Error('Unable to connect to orchestrator service');
           })
         )
@@ -104,14 +128,20 @@ export class OrchestratorService implements OnModuleInit {
 
   private extractAuthToken(request?: Request): string | null {
     if (!request) {
+      this.logger.warn('No request object provided for auth token extraction');
       return null;
     }
     
     const authHeader = request.headers.authorization;
+    this.logger.log(`Auth header found: ${authHeader ? 'yes' : 'no'}`);
+    
     if (authHeader && authHeader.startsWith('Bearer ')) {
-      return authHeader.substring(7);
+      const token = authHeader.substring(7);
+      this.logger.log(`Auth token extracted successfully, length: ${token.length}`);
+      return token;
     }
     
+    this.logger.warn('No valid Bearer token found in auth header');
     return null;
   }
 }

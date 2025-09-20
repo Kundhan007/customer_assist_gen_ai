@@ -1,6 +1,14 @@
 from langchain_core.tools import tool
 from python_orchestrator.agents import user_agent, claims_agent, policy_agent, admin_agent, premium_agent
 from typing import List
+import requests
+import os
+from python_orchestrator.utils.logger import get_logger
+
+logger = get_logger(__name__)
+
+# NestJS backend URL
+NESTJS_BASE_URL = os.getenv('NESTJS_BASE_URL', 'http://localhost:3000')
 
 # Global variable to store auth token and user role
 AUTH_TOKEN = None
@@ -150,6 +158,56 @@ async def delete_knowledge_base_entry_tool(kb_id: str) -> dict:
         raise ValueError("Admin access required to delete knowledge base")
     return await admin_agent.delete_knowledge_base_entry(kb_id, AUTH_TOKEN)
 
+# --- RAG Tool (Available to all users) ---
+
+@tool
+async def search_knowledge_base_tool(query: str, limit: int = 3) -> dict:
+    """Search knowledge base for similar content using RAG with cosine similarity."""
+    try:
+        # Step 1: Vectorize the query in Python orchestrator
+        from python_orchestrator.vectorization.text_vectorizer import TextVectorizer
+        vectorizer = TextVectorizer()
+        
+        logger.info(f"Vectorizing query: {query}")
+        query_vector = vectorizer.vectorize_chunk(query)
+        
+        # Step 2: Send vector to NestJS for similarity comparison
+        rag_url = f"{NESTJS_BASE_URL}/orchestrator/rag/search-vector"
+        
+        payload = {
+            "vector": query_vector.tolist(),
+            "limit": limit,
+            "query": query  # Include original query for context
+        }
+        
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {AUTH_TOKEN}" if AUTH_TOKEN else None
+        }
+        
+        # Remove None headers
+        headers = {k: v for k, v in headers.items() if v is not None}
+        
+        logger.info(f"Making vector-based RAG request to {rag_url}")
+        
+        response = requests.post(rag_url, json=payload, headers=headers, timeout=30)
+        
+        if response.status_code == 200:
+            result = response.json()
+            logger.info(f"Vector RAG search returned {len(result.get('results', []))} results")
+            return result
+        else:
+            logger.error(f"Vector RAG search failed with status {response.status_code}: {response.text}")
+            return {"error": f"Vector RAG search failed: {response.text}"}
+            
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Vector RAG search request failed: {e}")
+        return {"error": f"Vector RAG search request failed: {str(e)}"}
+    except Exception as e:
+        logger.error(f"Unexpected error in vector RAG search: {e}")
+        return {"error": f"Unexpected error in vector RAG search: {str(e)}"}
+
+
 # Tool lists for different user roles
 USER_TOOLS = [
     get_current_user_profile_tool,
@@ -159,6 +217,7 @@ USER_TOOLS = [
     get_user_policies_tool,
     get_user_policy_by_id_tool,
     calculate_premium_tool,
+    search_knowledge_base_tool,  # Add RAG tool to user tools
 ]
 
 ADMIN_TOOLS = USER_TOOLS + [

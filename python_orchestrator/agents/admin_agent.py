@@ -4,7 +4,7 @@ import logging
 from typing import Dict, Any, List
 
 logger = logging.getLogger(__name__)
-NESTJS_BACKEND_URL = os.getenv("NESTJS_BACKEND_URL", "http://localhost:3001")
+NESTJS_BACKEND_URL = os.getenv("NESTJS_BACKEND_URL", "http://localhost:3000")
 
 async def get_all_users(auth_token: str) -> List[Dict[str, Any]]:
     """Get all users (admin only)."""

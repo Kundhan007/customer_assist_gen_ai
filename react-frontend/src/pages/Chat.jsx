@@ -1,32 +1,81 @@
 import React, { useState, useEffect } from 'react';
 import ChatMessage from '../components/ChatMessage';
-import PolicyCard from '../components/PolicyCard';
-import ClaimStatusTable from '../components/ClaimStatusTable';
-import ConfirmAction from '../components/ConfirmAction';
-import '../components/Chat.css'; // Reusing the existing CSS
+import '../components/Chat.css';
 
 function Chat({ token }) {
   const [messages, setMessages] = useState([
-    { type: "text", sender: "system", message: "Welcome to Customer Assist!" },
-    { type: "policy", sender: "system", data: { plan: "Gold", coverage: "50000", deductible: "500" } },
-    { type: "claim", sender: "system", data: { claim_id: "98765", status: "In Review", last_updated: "2024-12-01" } },
-    { type: "confirm", sender: "system", data: { text: "Proceed with claim check?" } }
+    { 
+      type: "text", 
+      sender: "system", 
+      message: "Welcome to Customer Assist! I'm your AI-powered insurance assistant. How can I help you today?" 
+    }
   ]);
   const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    console.log("Chat page skeleton loaded");
-  }, []);
+    console.log("🤖 Chat page loaded with token:", token ? "TOKEN_PRESENT" : "NO_TOKEN");
+  }, [token]);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (input.trim() !== '') {
-      const newMessage = {
+      const userMessage = {
         type: "text",
         sender: "user",
         message: input,
       };
-      setMessages([...messages, newMessage]);
+      setMessages([...messages, userMessage]);
       setInput('');
+      setIsLoading(true);
+
+      try {
+        console.log("📡 Sending message to backend:", input);
+        
+        // Make actual API call to the backend
+        const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/chat/send`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ 
+            message: input,
+            sessionId: "demo-session" // This should come from user data after auth
+          }),
+        });
+
+        console.log("📡 Response status:", response.status);
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log("✅ Backend response:", data);
+          
+          const botResponse = {
+            type: "text",
+            sender: "system",
+            message: data.response || "I received your message and I'm here to help!"
+          };
+          setMessages(prev => [...prev, botResponse]);
+        } else {
+          console.log("❌ Backend request failed");
+          const botResponse = {
+            type: "text",
+            sender: "system",
+            message: "I'm having trouble connecting to my backend right now. Please try again later."
+          };
+          setMessages(prev => [...prev, botResponse]);
+        }
+      } catch (error) {
+        console.log("🚨 Error calling backend:", error);
+        const botResponse = {
+          type: "text",
+          sender: "system",
+          message: "Sorry, I'm experiencing technical difficulties. Please try again."
+        };
+        setMessages(prev => [...prev, botResponse]);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -34,25 +83,17 @@ function Chat({ token }) {
     setInput(e.target.value);
   };
 
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
   const renderMessage = (msg, index) => {
     switch (msg.type) {
       case "text":
         return <ChatMessage key={index} sender={msg.sender} message={msg.message} />;
-      case "policy":
-        return <PolicyCard key={index} policy={msg.data} />;
-      case "claim":
-        // ClaimStatusTable now expects a single claim object
-        return <ClaimStatusTable key={index} claim={msg.data} />;
-      case "confirm":
-        // ConfirmAction now expects text and onConfirm/onCancel handlers
-        return (
-          <ConfirmAction
-            key={index}
-            text={msg.data.text}
-            onConfirm={() => alert(`Confirmed: ${msg.data.text}`)}
-            onCancel={() => alert(`Cancelled: ${msg.data.text}`)}
-          />
-        );
       default:
         return null;
     }
@@ -60,12 +101,37 @@ function Chat({ token }) {
 
   return (
     <div className="chat-container">
-      <h2>Chat Page</h2>
-      <p>Welcome! You are now logged in.</p>
-      <p>Your token is: <strong>{token}</strong></p>
+      <div style={{ 
+        textAlign: 'center', 
+        marginBottom: '20px', 
+        padding: '16px', 
+        background: 'linear-gradient(135deg, #4a90e2 0%, #357abd 100%)',
+        color: 'white',
+        borderRadius: '12px',
+        boxShadow: '0 4px 12px rgba(74, 144, 226, 0.3)'
+      }}>
+        <h2 style={{ margin: '0 0 8px 0', fontSize: '24px' }}>Customer Assist</h2>
+        <p style={{ margin: '0', fontSize: '14px', opacity: '0.9' }}>
+          Your AI-powered insurance assistant
+        </p>
+      </div>
 
       <div className="chat-messages">
         {messages.map((msg, index) => renderMessage(msg, index))}
+        {isLoading && (
+          <div className="chat-message system">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ 
+                width: '8px', 
+                height: '8px', 
+                backgroundColor: '#4a90e2', 
+                borderRadius: '50%',
+                animation: 'pulse 1.4s infinite ease-in-out'
+              }}></div>
+              <span style={{ color: '#1565c0', fontSize: '14px' }}>Thinking...</span>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="chat-input-area">
@@ -73,10 +139,21 @@ function Chat({ token }) {
           type="text"
           value={input}
           onChange={handleInputChange}
-          placeholder="Type your message..."
+          onKeyPress={handleKeyPress}
+          placeholder="Ask about your policies, claims, or coverage..."
+          disabled={isLoading}
         />
-        <button onClick={handleSend}>Send</button>
+        <button onClick={handleSend} disabled={isLoading || input.trim() === ''}>
+          {isLoading ? 'Sending...' : 'Send'}
+        </button>
       </div>
+
+      <style jsx>{`
+        @keyframes pulse {
+          0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+          40% { transform: scale(1.2); opacity: 1; }
+        }
+      `}</style>
     </div>
   );
 }

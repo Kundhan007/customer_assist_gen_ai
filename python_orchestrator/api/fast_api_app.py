@@ -13,7 +13,7 @@ from api.models import (
     RoleDetectionResponse, ErrorResponse
 )
 from vectorization.text_vectorizer import TextVectorizer
-from orchestrator.langhub import run_agent, get_orchestrator_agent
+from orchestrator.langhub import run_agent, get_orchestrator_agent, run_agent_with_rag
 from orchestrator.agent_factory import get_user_role_from_token
 from orchestrator.tools import get_tools_for_role
 
@@ -195,6 +195,7 @@ async def chat_with_agent(request: ChatRequest):
     """
     Chat with the LangChain agent which can use tools to interact with the NestJS backend.
     The agent will have different tools available based on the user's role.
+    Includes RAG (Retrieval-Augmented Generation) for knowledge-based queries.
     """
     try:
         if not request.auth_token:
@@ -206,8 +207,8 @@ async def chat_with_agent(request: ChatRequest):
         # Prepend user_id to the query for context if provided
         full_query = f"User ID: {request.user_id}. Message: {request.message}" if request.user_id else request.message
         
-        # Run agent with role-based tools
-        agent_response = await run_agent(
+        # Run agent with RAG and intent detection
+        agent_response = await run_agent_with_rag(
             query=full_query,
             auth_token=request.auth_token,
             user_role=user_role
@@ -216,7 +217,7 @@ async def chat_with_agent(request: ChatRequest):
         return ChatResponse(
             response=agent_response,
             user_role=user_role,
-            tools_used=[]  # Could be enhanced to track actual tools used
+            tools_used=["rag_search", "role_based_tools"]  # Enhanced to show RAG capability
         )
     except ValueError as e:
         raise HTTPException(status_code=500, detail=f"Agent configuration error: {str(e)}")

@@ -4,7 +4,7 @@ import logging
 from typing import Dict, Any, List
 
 logger = logging.getLogger(__name__)
-NESTJS_BACKEND_URL = os.getenv("NESTJS_BACKEND_URL", "http://localhost:3001")
+NESTJS_BACKEND_URL = os.getenv("NESTJS_BACKEND_URL", "http://localhost:3000")
 
 async def get_user_policies(auth_token: str, active_only: bool = False) -> List[Dict[str, Any]]:
     """Get current user's policies."""

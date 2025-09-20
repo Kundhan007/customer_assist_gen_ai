@@ -1,13 +1,14 @@
 import httpx
 import os
-import logging
+import sys
 from typing import Dict, Any
 
-# Configure logging
-logger = logging.getLogger(__name__)
+# Add parent directory to path to import utils
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from utils.logger import logger
 
 # Get NestJS backend URL from environment variables
-NESTJS_BACKEND_URL = os.getenv("NESTJS_BACKEND_URL", "http://localhost:3001")
+NESTJS_BACKEND_URL = os.getenv("NESTJS_BACKEND_URL", "http://localhost:3000")
 
 async def get_user_by_id(user_id: str, auth_token: str = None) -> Dict[str, Any]:
     """
@@ -24,6 +25,7 @@ async def get_user_by_id(user_id: str, auth_token: str = None) -> Dict[str, Any]
     Raises:
         ValueError: If the user is not found or an API error occurs.
     """
+    logger.info(f"Fetching user by ID: {user_id}")
     url = f"{NESTJS_BACKEND_URL}/users/{user_id}"
     headers = {}
     if auth_token:
@@ -33,6 +35,7 @@ async def get_user_by_id(user_id: str, auth_token: str = None) -> Dict[str, Any]
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=headers)
             response.raise_for_status()  # Raises an exception for 4XX/5XX errors
+            logger.info(f"Successfully fetched user by ID: {user_id}")
             return response.json()
     except httpx.HTTPStatusError as e:
         logger.error(f"HTTP error fetching user by ID {user_id}: {e.response.status_code} - {e.response.text}")
@@ -56,6 +59,7 @@ async def get_current_user_profile(auth_token: str) -> Dict[str, Any]:
     Raises:
         ValueError: If the user is not found or an API error occurs.
     """
+    logger.info("Fetching current user profile")
     url = f"{NESTJS_BACKEND_URL}/user/profile"
     headers = {}
     if auth_token:
@@ -65,6 +69,7 @@ async def get_current_user_profile(auth_token: str) -> Dict[str, Any]:
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=headers)
             response.raise_for_status()  # Raises an exception for 4XX/5XX errors
+            logger.info("Successfully fetched current user profile")
             return response.json()
     except httpx.HTTPStatusError as e:
         logger.error(f"HTTP error fetching current user profile: {e.response.status_code} - {e.response.text}")
@@ -89,6 +94,7 @@ async def get_user_by_email(email: str, auth_token: str = None) -> Dict[str, Any
     Raises:
         ValueError: If the user is not found or an API error occurs.
     """
+    logger.info(f"Fetching user by email: {email}")
     # Assuming an endpoint like /users?email=some@email.com exists or a specific one
     # For this example, let's assume a specific endpoint /users/email/{email}
     # If not, this might need to be adjusted based on actual NestJS routes.
@@ -101,6 +107,7 @@ async def get_user_by_email(email: str, auth_token: str = None) -> Dict[str, Any
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=headers)
             response.raise_for_status()
+            logger.info(f"Successfully fetched user by email: {email}")
             return response.json()
     except httpx.HTTPStatusError as e:
         logger.error(f"HTTP error fetching user by email {email}: {e.response.status_code} - {e.response.text}")

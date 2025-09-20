@@ -79,19 +79,49 @@ echo "🐍 Starting Python FastAPI backend on port 2345..."
 ) &
 PYTHON_PID=$!
 
-# Start NestJS backend
-echo "🏗️  Starting NestJS backend on port 3000..."
-(
-    cd nestjs-backend
-    exec npm run start:dev
-) &
-NESTJS_PID=$!
+# Function to check if Python orchestrator is ready
+check_python_ready() {
+    local max_attempts=30
+    local attempt=1
+    local wait_time=2
+    
+    echo "⏳ Waiting for Python orchestrator to be ready..."
+    
+    while [ $attempt -le $max_attempts ]; do
+        if curl -s -f http://localhost:2345/docs > /dev/null 2>&1; then
+            echo "✅ Python orchestrator is ready!"
+            return 0
+        fi
+        
+        echo "⏳ Attempt $attempt/$max_attempts: Python orchestrator not ready yet... waiting ${wait_time}s"
+        sleep $wait_time
+        attempt=$((attempt + 1))
+    done
+    
+    echo "❌ Error: Python orchestrator failed to start within $((max_attempts * wait_time)) seconds"
+    return 1
+}
 
-echo "✅ Both backends are starting..."
-echo "🐍 Python FastAPI: http://localhost:2345 (PID: $PYTHON_PID)"
-echo "🏗️  NestJS: http://localhost:3000 (PID: $NESTJS_PID)"
-echo ""
-echo "Press Ctrl+C to stop both backends"
+# Wait for Python orchestrator to be ready
+if check_python_ready; then
+    # Start NestJS backend
+    echo "🏗️  Starting NestJS backend on port 3000..."
+    (
+        cd nestjs-backend
+        exec npm run start:dev
+    ) &
+    NESTJS_PID=$!
+    
+    echo "✅ Both backends are starting..."
+    echo "🐍 Python FastAPI: http://localhost:2345 (PID: $PYTHON_PID)"
+    echo "🏗️  NestJS: http://localhost:3000 (PID: $NESTJS_PID)"
+    echo ""
+    echo "Press Ctrl+C to stop both backends"
+else
+    echo "❌ Failed to start Python orchestrator. Exiting..."
+    cleanup
+    exit 1
+fi
 
 # Function to cleanup on exit
 cleanup() {
@@ -109,7 +139,7 @@ cleanup() {
     if [ ! -z "$NESTJS_PID" ]; then
         echo "🛑 Stopping NestJS backend..."
         kill $NESTJS_PID 2>/dev/null
-        kill_port 3000
+        kill_port 3001
     fi
     
     echo "✅ All backends stopped"

@@ -3,6 +3,10 @@ from langchain_openai import ChatOpenAI
 from langchain.agents import initialize_agent, AgentType
 from python_orchestrator.config import OPENAI_API_KEY
 from .agent_factory import create_agent_with_auth, create_role_based_agent
+from .tools import search_knowledge_base_tool
+from python_orchestrator.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 def get_orchestrator_agent(
     auth_token: str = None,
@@ -142,3 +146,33 @@ async def run_admin_agent(query: str, auth_token: str):
     """
     agent = get_admin_agent(auth_token)
     return await run_agent(query, agent=agent)
+
+async def run_agent_with_rag(query: str, auth_token: str = None, user_role: str = None):
+    """
+    Run the agent with access to all tools, letting LangChain decide autonomously.
+    
+    Args:
+        query (str): The user's query or instruction for the agent.
+        auth_token (str, optional): JWT authentication token.
+        user_role (str, optional): User role ('user' or 'admin').
+    
+    Returns:
+        str: The agent's response.
+    """
+    try:
+        # Set auth token and user role for tools
+        from .tools import set_auth_token, set_user_role
+        if auth_token:
+            set_auth_token(auth_token)
+        if user_role:
+            set_user_role(user_role)
+        
+        logger.info(f"Running agent with query: {query}")
+        
+        # Let LangChain decide which tools to use autonomously
+        return await run_agent(query, auth_token, user_role)
+        
+    except Exception as e:
+        logger.error(f"Error in run_agent_with_rag: {e}")
+        # Fallback to normal agent execution
+        return await run_agent(query, auth_token, user_role)

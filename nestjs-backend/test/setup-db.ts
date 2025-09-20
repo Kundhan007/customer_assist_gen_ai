@@ -1,7 +1,7 @@
 import { Client } from 'pg';
 import * as fs from 'fs';
 import * as path from 'path';
-import { FAQVectorProcessor } from './setup-faq-vectors';
+import { FAQDataSeeder } from './setup-faq-vectors';
 import * as dotenv from 'dotenv';
 
 // Load environment variables from .env.test
@@ -98,8 +98,8 @@ const main = async () => {
     
     // Step 3: Process knowledge base vectors
     console.log('\n📚 Processing knowledge base vectors...');
-    const faqProcessor = new FAQVectorProcessor();
-    await faqProcessor.processKnowledgeBaseVectors();
+    const faqProcessor = new FAQDataSeeder();
+    await faqProcessor.seedFAQData();
     
     console.log('\n✅ Test database setup completed successfully!');
     console.log('\n📊 Database Schema and KB Vectors Ready.');
