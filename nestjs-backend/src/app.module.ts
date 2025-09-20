@@ -10,6 +10,7 @@ import { AdminModule } from './admin/admin.module';
 import { UsersModule } from './users/users.module';
 import { PoliciesModule } from './policies/policies.module';
 import { ClaimHistoryModule } from './claim-history/claim-history.module';
+import { UserModule } from './user/user.module';
 import { ConfigModule as AppConfigModule } from './config/config.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -57,6 +58,7 @@ import { Reflector } from '@nestjs/core';
     UsersModule,
     PoliciesModule,
     ClaimHistoryModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [

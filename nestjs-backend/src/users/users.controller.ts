@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, UseGuards, Request } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserEmailDto } from './dto/update-user-email.dto';
@@ -36,13 +36,13 @@ export class UsersController {
   }
 
   @Get(':id')
-  @Roles('user', 'admin')
+  @Roles('admin')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
   }
 
   @Patch(':id/email')
-  @Roles('user', 'admin')
+  @Roles('admin')
   updateEmail(@Param('id') id: string, @Body() updateUserEmailDto: UpdateUserEmailDto) {
     return this.usersService.updateEmail(id, updateUserEmailDto);
   }
