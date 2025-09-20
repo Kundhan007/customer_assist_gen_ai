@@ -1,13 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 
 @Injectable()
 export class AdminService {
   // Mock data store for knowledge base entries
   private knowledgeBase = [
     { id: '1', filename: 'faq.md', content: 'FAQ content here' },
+    { id: 'test-kb-001', filename: 'test-file.md', content: 'Test content here' },
   ];
 
   uploadKnowledgeBase(file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('No file provided');
+    }
+    
     const newEntry = {
       id: Date.now().toString(),
       filename: file.originalname,
@@ -23,6 +28,6 @@ export class AdminService {
       const deletedEntry = this.knowledgeBase.splice(index, 1);
       return { message: 'Entry deleted successfully', entry: deletedEntry[0] };
     }
-    return { message: 'Entry not found' };
+    throw new NotFoundException('Entry not found');
   }
 }

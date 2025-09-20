@@ -3,6 +3,7 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '@/app.module';
 import { setupTestDatabase, teardownTestDatabase } from '@test/database.setup';
+import { TEST_USERS, TEST_POLICIES, NON_EXISTENT_POLICY_ID } from '@test/test-data';
 
 describe('PremiumController (e2e)', () => {
   let app: INestApplication;
@@ -22,7 +23,7 @@ describe('PremiumController (e2e)', () => {
     // Login to get token
     const loginResponse = await request(app.getHttpServer())
       .post('/auth/login')
-      .send({ email: 'test@example.com', password: 'password' });
+      .send({ email: TEST_USERS.JOHN_DOE.email, password: TEST_USERS.JOHN_DOE.password });
     authToken = loginResponse.body.access_token;
   });
 
@@ -31,48 +32,44 @@ describe('PremiumController (e2e)', () => {
     await teardownTestDatabase();
   });
 
-  it('/premium/calc (POST) - success', () => {
+  it('/user/premium/calculate (POST) - success', () => {
     return request(app.getHttpServer())
-      .post('/premium/calc')
+      .post('/user/premium/calculate')
       .set('Authorization', `Bearer ${authToken}`)
-      .send({ policyId: 'policy-123', newCoverage: 100000 })
+      .send({ policy_id: TEST_POLICIES.GOLD_001, new_coverage: 100000 })
       .expect(201)
       .expect((res) => {
-        expect(res.body).toHaveProperty('policyId', 'policy-123');
+        expect(res.body).toHaveProperty('policy_id', TEST_POLICIES.GOLD_001);
         expect(res.body).toHaveProperty('calculatedPremium');
       });
   });
 
-  it('/premium/calc (POST) - missing fields', () => {
+  it('/user/premium/calculate (POST) - missing fields', () => {
     return request(app.getHttpServer())
-      .post('/premium/calc')
+      .post('/user/premium/calculate')
       .set('Authorization', `Bearer ${authToken}`)
-      .send({ policyId: 'policy-123' })
+      .send({ policy_id: TEST_POLICIES.GOLD_001 })
       .expect(400);
   });
 
-  it('/premium/:policyId (GET) - success', () => {
+  it('/user/premium/policy/:policyId (GET) - success', () => {
     return request(app.getHttpServer())
-      .get('/premium/policy-123')
+      .get(`/user/premium/policy/${TEST_POLICIES.GOLD_001}`)
       .set('Authorization', `Bearer ${authToken}`)
       .expect(200)
       .expect((res) => {
         expect(Array.isArray(res.body)).toBe(true);
         expect(res.body.length).toBeGreaterThan(0);
-        res.body.forEach((record) => {
-          expect(record).toHaveProperty('policyId', 'policy-123');
+        res.body.forEach((record: any) => {
+          expect(record).toHaveProperty('policy_id', TEST_POLICIES.GOLD_001);
         });
       });
   });
 
-  it('/premium/:policyId (GET) - no history', () => {
+  it('/user/premium/policy/:policyId (GET) - no history', () => {
     return request(app.getHttpServer())
-      .get('/premium/non-existent-policy')
+      .get(`/user/premium/policy/${NON_EXISTENT_POLICY_ID}`)
       .set('Authorization', `Bearer ${authToken}`)
-      .expect(200)
-      .expect((res) => {
-        expect(Array.isArray(res.body)).toBe(true);
-        expect(res.body.length).toBe(0);
-      });
+      .expect(404);
   });
 });

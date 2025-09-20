@@ -1,35 +1,52 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Premium } from '../entities/premium.entity';
 
 @Injectable()
 export class PremiumService {
-  // Mock data store for premium history
-  private premiumHistory = [
-    { policyId: 'policy-123', amount: 500, date: new Date().toISOString() },
-  ];
+  constructor(
+    @InjectRepository(Premium)
+    private readonly premiumRepository: Repository<Premium>,
+  ) {}
 
-  calculatePremium(
+  async calculatePremium(
     policyId: string,
-    currentCoverage?: number,
-    newCoverage?: number,
+    previous_coverage?: number,
+    new_coverage?: number,
   ) {
     // Simplified premium calculation logic
     const basePremium = 100;
-    const coverageFactor = newCoverage ? newCoverage / 1000 : 1;
-    const premium = basePremium * coverageFactor;
+    const coverageFactor = new_coverage ? new_coverage / 1000 : 1;
+    const calculatedPremium = basePremium * coverageFactor;
 
-    // Log the calculation
-    this.premiumHistory.push({
-      policyId,
-      amount: premium,
-      date: new Date().toISOString(),
-    });
+    // Create premium record - let database generate the premium_id
+    const premium = new Premium();
+    premium.currentCoverage = previous_coverage || 0;
+    premium.newCoverage = new_coverage || 0;
+    premium.currentPremium = basePremium;
+    premium.newPremium = calculatedPremium;
+    premium.calculationDate = new Date();
+    premium.policy_id = policyId;
 
-    return { policyId, calculatedPremium: premium };
+    // Remove the premium_id assignment to let the database auto-generate it
+    delete (premium as any).premium_id;
+
+    await this.premiumRepository.save(premium);
+
+    return { policy_id: policyId, calculatedPremium };
   }
 
-  getPremiumHistory(policyId: string) {
-    return this.premiumHistory
-      .filter((record) => record.policyId === policyId)
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  async getPremiumHistory(policyId: string) {
+    const history = await this.premiumRepository.find({
+      where: { policy_id: policyId },
+      order: { calculationDate: 'DESC' },
+    });
+
+    return history.map(record => ({
+      policy_id: record.policy_id,
+      amount: record.newPremium,
+      date: record.calculationDate.toISOString(),
+    }));
   }
 }
