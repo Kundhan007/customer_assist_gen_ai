@@ -13,14 +13,17 @@ import {
 import { ClaimsService } from './claims.service';
 import { CreateClaimDto } from './dto/create-claim.dto';
 import { UpdateClaimStatusDto } from './dto/update-claim-status.dto';
-import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../common/guards/roles.guard';
+import { Roles } from '../common/decorators/roles.decorator';
 
 @Controller('claims')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class ClaimsController {
   constructor(private readonly claimsService: ClaimsService) {}
 
   @Get(':id')
+  @Roles('user', 'admin')
   async getClaimById(@Param('id') id: string) {
     const claim = await this.claimsService.getClaimById(id);
     if (!claim) {
@@ -30,6 +33,7 @@ export class ClaimsController {
   }
 
   @Post()
+  @Roles('user', 'admin')
   createClaim(@Body() createClaimDto: CreateClaimDto) {
     return this.claimsService.createClaim(
       createClaimDto.policyId,
@@ -40,6 +44,7 @@ export class ClaimsController {
   }
 
   @Get()
+  @Roles('user', 'admin')
   getClaimsByPolicy(@Query('policyId') policyId?: string) {
     if (policyId) {
       return this.claimsService.getClaimsByPolicy(policyId);
@@ -48,6 +53,7 @@ export class ClaimsController {
   }
 
   @Patch(':id/status')
+  @Roles('admin')
   async updateClaimStatus(
     @Param('id') id: string,
     @Body() updateClaimStatusDto: UpdateClaimStatusDto,
@@ -60,6 +66,7 @@ export class ClaimsController {
   }
 
   @Delete(':id')
+  @Roles('admin')
   async deleteClaim(@Param('id') id: string) {
     const result = await this.claimsService.deleteClaim(id);
     if (!result) {
